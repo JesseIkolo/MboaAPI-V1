@@ -1,0 +1,49 @@
+{
+  "name": "mboa-events-api",
+  "version": "1.0.0",
+  "description": "API RESTful pour Mboa Events avec gestion des utilisateurs, OTP, email et waitlist",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "nodemon server.js",
+    "dev": "nodemon start.js",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:badge": "jest --coverage && jest-coverage-badges"
+  },
+  "author": "Jesse Ikolo",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.9.0",
+    "bull": "^4.16.5",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.5.0",
+    "express-validator": "^7.0.1",
+    "ioredis": "^5.6.1",
+    "jsonwebtoken": "^9.0.2",
+    "moment": "^2.29.4",
+    "mongoose": "^8.15.1",
+    "morgan": "^1.10.0",
+    "nodemailer": "^6.10.1",
+    "rate-limit-redis": "^4.2.1",
+    "redis": "^5.5.5",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^4.6.3",
+    "uuid": "^9.0.1",
+    "yamljs": "^0.3.0"
+  },
+  "devDependencies": {
+    "bcryptjs": "^3.0.2",
+    "jest": "^29.7.0",
+    "jest-coverage-badges": "^1.0.0",
+    "mongodb-memory-server": "^10.1.4",
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.1"
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "keywords": []
+}
