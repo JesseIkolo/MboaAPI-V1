@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Check, Clock, X, Trash2, Unlock, Shield } from 'lucide-react';
-import { config } from '../../config/env';
+import api from '../../services/api'; // Importer notre service api
 
 const AdministratorDetails = ({ admin, onAdminUpdated }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -35,76 +35,22 @@ const AdministratorDetails = ({ admin, onAdminUpdated }) => {
             setLoading(true);
             setError(null);
 
-            // Vérifier si l'ID de l'admin est valide
-            if (!admin._id) {
-                throw new Error('ID de l\'administrateur non valide');
-            }
+            if (!admin._id) throw new Error('ID de l\'administrateur non valide');
 
-            const token = localStorage.getItem('token');
-            if (!token) {
-                throw new Error('Token non trouvé');
-            }
-
-            // Construire l'URL de l'API en s'assurant qu'elle est bien formée
-            const baseUrl = config.API_URL.replace(/\/$/, ''); // Enlever le slash final s'il existe
-            const apiUrl = `${baseUrl}/api/users/${admin._id}`;
-            console.log('URL de l\'API:', apiUrl);
-
-            // Préparer les données à envoyer
             const requestData = {
                 permissions: selectedPermissions,
                 isAdminValidated: true,
-                role: 'admin' // Assurer que le rôle est bien défini
+                role: 'admin'
             };
-            console.log('Données envoyées:', requestData);
 
-            const response = await fetch(apiUrl, {
-                method: 'PUT', // Utiliser PUT pour la mise à jour d'un utilisateur existant
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(requestData)
-            });
-
-            // Log de la réponse brute pour le débogage
-            const responseText = await response.text();
-            console.log('Réponse brute:', responseText);
-
-            if (!response.ok) {
-                // Essayer de parser la réponse comme JSON
-                let errorMessage = 'Erreur lors de la validation de l\'administrateur';
-                try {
-                    const errorData = JSON.parse(responseText);
-                    errorMessage = errorData.message || errorMessage;
-                } catch (e) {
-                    // Si ce n'est pas du JSON valide, utiliser le texte brut
-                    if (responseText.includes('<!DOCTYPE html>')) {
-                        errorMessage = `Erreur serveur: L'API n'est pas accessible ou l'endpoint n'existe pas. Vérifiez que le serveur est en cours d'exécution.`;
-                    } else {
-                        errorMessage = `Erreur serveur: ${responseText.substring(0, 100)}...`;
-                    }
-                }
-                throw new Error(errorMessage);
-            }
-
-            // Essayer de parser la réponse comme JSON
-            let data;
-            try {
-                data = JSON.parse(responseText);
-                console.log('Données reçues:', data);
-            } catch (e) {
-                throw new Error('Réponse invalide du serveur');
-            }
+            // Utiliser api.put pour la mise à jour
+            await api.put(`/users/${admin._id}`, requestData);
 
             setIsModalOpen(false);
-            if (onAdminUpdated) {
-                onAdminUpdated();
-            }
+            if (onAdminUpdated) onAdminUpdated();
         } catch (err) {
             console.error('Erreur complète:', err);
-            setError(err.message);
+            setError(err.response?.data?.message || err.message || 'Erreur lors de la validation');
         } finally {
             setLoading(false);
         }
@@ -123,21 +69,12 @@ const AdministratorDetails = ({ admin, onAdminUpdated }) => {
         setLoading(true);
         setError(null);
         try {
-            const token = localStorage.getItem('token');
-            if (!token) throw new Error('Token non trouvé');
-            const baseUrl = config.API_URL.replace(/\/$/, '');
-            const apiUrl = `${baseUrl}/api/users/${admin._id}`;
-            const response = await fetch(apiUrl, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
-            if (!response.ok) throw new Error('Erreur lors de la révocation');
+            // Utiliser api.delete
+            await api.delete(`/users/${admin._id}`);
             setShowConfirmDelete(false);
             if (onAdminUpdated) onAdminUpdated();
         } catch (err) {
-            setError(err.message);
+            setError(err.response?.data?.message || err.message);
         } finally {
             setLoading(false);
         }
@@ -148,21 +85,12 @@ const AdministratorDetails = ({ admin, onAdminUpdated }) => {
         setLoading(true);
         setError(null);
         try {
-            const token = localStorage.getItem('token');
-            if (!token) throw new Error('Token non trouvé');
-            const baseUrl = config.API_URL.replace(/\/$/, '');
-            const apiUrl = `${baseUrl}/api/users/${admin._id}/unblock`;
-            const response = await fetch(apiUrl, {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
-            if (!response.ok) throw new Error('Erreur lors du déblocage');
+            // Utiliser api.patch
+            await api.patch(`/users/${admin._id}/unblock`);
             setShowConfirmUnblock(false);
             if (onAdminUpdated) onAdminUpdated();
         } catch (err) {
-            setError(err.message);
+            setError(err.response?.data?.message || err.message);
         } finally {
             setLoading(false);
         }

@@ -1,64 +1,49 @@
-import React, { useEffect, useState } from 'react';
-import StatsService from '../../services/stats.service';
+import React from 'react';
 import StatCard from '../global/StatCard';
 
-const DashboardStats = () => {
-    const [stats, setStats] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                setLoading(true);
-                const data = await StatsService.getDashboardStats();
-                console.log('------> data', data);
-                setStats(data);
-                setError(null);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchStats();
-    }, []);
-
+const DashboardStats = ({ stats, loading, error }) => {
+    console.log('DashboardStats props:', stats);
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-8">
             <StatCard
                 title="Waitinglist"
-                value={stats?.waitlist || 0}
+                value={stats?.waitlistStats?.total || 0}
                 bgColor="bg-blue-50"
                 isLoading={loading}
                 error={error}
             />
             <StatCard
-                title="Utilisateurs"
-                value={stats?.users || 0}
+                title="Événements"
+                value={stats?.totalEvents || 0}
                 bgColor="bg-blue-50"
                 isLoading={loading}
                 error={error}
             />
             <StatCard
                 title="Partenaires Business"
-                value={stats?.partners || 0}
+                value={stats?.totalPartners || 0}
                 bgColor="bg-green-50"
                 isLoading={loading}
                 error={error}
             />
             <StatCard
                 title="Revenue Mensuel"
-                value={stats?.totalPartners || 0}
+                value={stats?.monthlyRevenue || 0}
                 bgColor="bg-purple-50"
                 isLoading={loading}
                 error={error}
             />
             <StatCard
                 title="Utilisateurs Premium"
-                value={stats?.totalPremiumUsers || 0}
+                value={stats?.premiumUsers || 0}
                 bgColor="bg-orange-50"
+                isLoading={loading}
+                error={error}
+            />
+            <StatCard
+                title="Utilisateurs Freemium"
+                value={stats?.freemiumUsers || 0}
+                bgColor="bg-yellow-50"
                 isLoading={loading}
                 error={error}
             />

@@ -3,6 +3,7 @@ const express = require('express');
 const {
   register,
   login,
+  logout,
   sendOTP,
   verifyOTP,
   resetPassword,
@@ -13,7 +14,8 @@ const {
   deleteUser,
   followUser,
   unfollowUser,
-  getCurrentUser
+  getCurrentUser,
+  createSuperUser
 } = require('../controllers/user.controller.js');
 const { authMiddleware, adminMiddleware } = require('../middlewares/auth.middleware.js');
 
@@ -22,6 +24,7 @@ const router = express.Router();
 // --- Routes publiques ---
 router.post('/register', register);
 router.post('/login', login);
+router.post('/logout', logout);
 router.post('/send-otp', sendOTP);
 router.post('/verify-otp', verifyOTP);
 router.post('/reset-password', resetPassword);
@@ -39,4 +42,8 @@ router.post('/follow/:userId', authMiddleware, followUser);
 
 // Route pour permettre à un utilisateur d'arrêter de suivre un autre utilisateur
 router.post('/unfollow/:userId', authMiddleware, unfollowUser);
+
+// Route pour créer un super utilisateur (superadmin)
+router.post('/superuser', adminMiddleware, createSuperUser);
+
 module.exports = router;

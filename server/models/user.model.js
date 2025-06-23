@@ -141,7 +141,9 @@ const userSchema = new Schema({
         type: String,
         enum: ['freemium', 'premium', 'none'],
         default: 'freemium'
-    }
+    },
+    premiumUntil: { type: Date },
+    referrer: { type: Schema.Types.ObjectId, ref: 'User' },
 }, {
     timestamps: true
 });

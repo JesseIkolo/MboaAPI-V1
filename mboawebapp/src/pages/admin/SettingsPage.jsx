@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Save, AlertCircle } from 'lucide-react';
-import { config } from '../../config/env';
+import api from '../../services/api';
 
 const SettingsPage = () => {
     const [settings, setSettings] = useState({
@@ -42,19 +42,8 @@ const SettingsPage = () => {
     const fetchSettings = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem('token');
-            if (!token) throw new Error('Token non trouvé');
-
-            const response = await fetch(`${config.API_URL}/api/admin/settings`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (!response.ok) throw new Error('Erreur lors de la récupération des paramètres');
-
-            const data = await response.json();
-            setSettings(data);
+            const response = await api.get('/admin/settings');
+            setSettings(response.data);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -79,19 +68,7 @@ const SettingsPage = () => {
             setError(null);
             setSuccess(false);
 
-            const token = localStorage.getItem('token');
-            if (!token) throw new Error('Token non trouvé');
-
-            const response = await fetch(`${config.API_URL}/api/admin/settings`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(settings)
-            });
-
-            if (!response.ok) throw new Error('Erreur lors de la sauvegarde des paramètres');
+            await api.put('/admin/settings', settings);
 
             setSuccess(true);
             setTimeout(() => setSuccess(false), 3000);
@@ -111,7 +88,6 @@ const SettingsPage = () => {
     }
 
     return (
-        <div className="p-8">
             <div className="max-w-4xl mx-auto">
                 <h1 className="text-2xl font-semibold text-gray-900 mb-8">
                     Paramètres
@@ -387,7 +363,6 @@ const SettingsPage = () => {
                         </button>
                     </div>
                 </form>
-            </div>
         </div>
     );
 };

@@ -2,34 +2,34 @@ const express = require('express');
 const router = express.Router();
 const businessManagerController = require('../controllers/businessManager.controller');
 const { authMiddleware } = require('../middlewares/auth.middleware');
-const partnerMiddleware = require('../middlewares/partner.middleware');
+const businessMiddleware = require('../middlewares/business.middleware');
 
 // Routes pour la gestion des Business Managers
 router.get(
-    '/partner/:partnerId/managers',
+    '/business/:businessId/managers',
     authMiddleware,
-    partnerMiddleware.isPartnerOrAdmin,
+    businessMiddleware.isBusinessOrAdmin,
     businessManagerController.getBusinessManagers
 );
 
 router.post(
-    '/partner/:partnerId/managers',
+    '/business/:businessId/managers',
     authMiddleware,
-    partnerMiddleware.isPartnerOrAdmin,
+    businessMiddleware.isBusinessOrAdmin,
     businessManagerController.addBusinessManager
 );
 
 router.put(
-    '/partner/:partnerId/managers/:managerId',
+    '/business/:businessId/managers/:managerId',
     authMiddleware,
-    partnerMiddleware.isPartnerOrAdmin,
+    businessMiddleware.isBusinessOrAdmin,
     businessManagerController.updateBusinessManagerPermissions
 );
 
 router.delete(
-    '/partner/:partnerId/managers/:managerId',
+    '/business/:businessId/managers/:managerId',
     authMiddleware,
-    partnerMiddleware.isPartnerOrAdmin,
+    businessMiddleware.isBusinessOrAdmin,
     businessManagerController.removeBusinessManager
 );
 

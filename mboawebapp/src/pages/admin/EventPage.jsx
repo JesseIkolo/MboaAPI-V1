@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Calendar, Users, MessageSquare, Heart, Plus } from 'lucide-react';
-import { config } from '../../config/env';
+import api from '../../services/api';
 import EventList from '../../components/events/EventList';
 import EventDetails from '../../components/events/EventDetails';
 import AddEventModal from '../../components/events/AddEventModal';
@@ -25,24 +25,8 @@ const EventPage = () => {
     const fetchEvents = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem('token');
-            if (!token) {
-                throw new Error('Token non trouvé');
-            }
-
-            const response = await fetch(`${config.API_URL}/api/events`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Erreur lors de la récupération des événements');
-            }
-
-            const data = await response.json();
-            setEvents(data);
+            const response = await api.get('/events');
+            setEvents(response.data);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -67,21 +51,7 @@ const EventPage = () => {
 
     const handleAddEvent = async (eventData) => {
         try {
-            const token = localStorage.getItem('token');
-            if (!token) throw new Error('Token non trouvé');
-
-            const response = await fetch(`${config.API_URL}/api/events`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                body: eventData // FormData contenant les images et les données JSON
-            });
-
-            if (!response.ok) {
-                throw new Error('Erreur lors de la création de l\'événement');
-            }
-
+            await api.post('/events', eventData);
             await fetchEvents();
             setShowAddModal(false);
         } catch (err) {
@@ -91,26 +61,12 @@ const EventPage = () => {
 
     const handleEventStatusUpdate = async (eventId, action) => {
         try {
-            const token = localStorage.getItem('token');
-            if (!token) throw new Error('Token non trouvé');
-
-            const response = await fetch(`${config.API_URL}/api/events/${eventId}/${action}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`Erreur lors de la mise à jour du statut de l'événement`);
-            }
-
+            await api.put(`/events/${eventId}/${action}`);
             await fetchEvents();
             
             if (selectedEvent?._id === eventId) {
-                const updatedEvent = events.find(e => e._id === eventId);
-                setSelectedEvent(updatedEvent);
+                const updatedEventResponse = await api.get(`/events/${eventId}`);
+                setSelectedEvent(updatedEventResponse.data);
             }
         } catch (err) {
             setError(err.message);
@@ -148,9 +104,9 @@ const EventPage = () => {
     });
 
     return (
-        <div className="h-full bg-gray-50">
+        <div className="h-[calc(100vh-14rem)]">
             {/* En-tête de la page */}
-            <div className="bg-white border-b border-gray-200 px-8 py-6">
+            <div className="bg-white border-b border-gray-200 px-8 py-6 -mx-8 -mt-8 mb-6">
                 <div className="flex justify-between items-center">
                     <div>
                         <h1 className="text-2xl font-semibold text-gray-900">Gestion des Événements</h1>
@@ -169,7 +125,7 @@ const EventPage = () => {
             </div>
 
             {/* Contenu principal */}
-            <div className="flex h-[calc(100vh-12rem)]">
+            <div className="flex h-full">
                 {/* Section gauche - Liste des événements */}
                 <div className="w-2/3 border-r border-gray-200 bg-white p-6">
                     {/* Barre de recherche et filtres */}
@@ -272,7 +228,7 @@ const EventPage = () => {
             {showAddModal && (
                 <AddEventModal
                     onClose={() => setShowAddModal(false)}
-                    onAdd={handleAddEvent}
+                    onAddEvent={handleAddEvent}
                 />
             )}
         </div>

@@ -12,6 +12,7 @@ const {
   checkWhatsAppNumber,
   sendWelcomeEmail
 } = require('../services/email.service.js');
+const referralController = require('./referral.controller');
 
 function validatePassword(password) {
   const errors = [];
@@ -61,6 +62,8 @@ const register = async (req, res) => {
     });
 
     await newUser.save();
+    // Association parrainage si code présent (cookie ou body)
+    await referralController.associateReferralOnSignup(newUser, req);
 /* 
     const isWhatsapp = await checkWhatsAppNumber(phone);
     if (isWhatsapp) {
@@ -79,7 +82,7 @@ const register = async (req, res) => {
     });
   } catch (err) {
     console.error('❌ REGISTER ERROR:', err.message || err);
-    res.status(500).json({ message: 'Erreur serveur à l’inscription' });
+    res.status(500).json({ message: "Erreur serveur à l'inscription" });
   }
 };
 
@@ -159,20 +162,19 @@ const login = async (req, res) => {
     }
 
     console.log('✅ Connexion réussie pour:', identifier);
-    const token = jwt.sign(
-      { 
-        userId: user._id, 
+
+    // Créer la session utilisateur
+    req.session.user = {
+      _id: user._id,
         role: user.role || 'user',
         adminType: user.adminType,
         isAdminValidated: user.isAdminValidated || false,
-        permissions: user.permissions || []
-      }, 
-      process.env.JWT_SECRET, 
-      { expiresIn: '10d' }
-    );
+      permissions: user.permissions || [],
+      email: user.email,
+      username: user.username
+    };
     
     res.json({ 
-      token,
       user: {
         _id: user._id,
         username: user.username,
@@ -422,12 +424,83 @@ const unfollowUser = async (req, res) => {
 
 const getCurrentUser = async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).select('-password');
-    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    const user = await User.findById(req.user._id).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
     res.json(user);
   } catch (error) {
+    console.error('Erreur dans getCurrentUser:', error.message);
     res.status(500).json({ message: error.message });
   }
+};
+
+// --- Création d'un super utilisateur (superadmin) ---
+const createSuperUser = async (req, res) => {
+  const { username, email, phone, password, firstName, lastName } = req.body;
+  try {
+    // Vérification du mot de passe
+    const passwordIssues = validatePassword(password);
+    if (passwordIssues.length > 0) {
+      return res.status(400).json({
+        message: "Le mot de passe est trop faible",
+        reasons: passwordIssues
+      });
+    }
+
+    // Vérifier si un superadmin existe déjà avec cet email, username ou phone
+    const existingUser = await User.findOne({ $or: [
+      { email }, { phone }, { username }
+    ] });
+    if (existingUser) return res.status(400).json({ message: 'Super utilisateur existant (email, téléphone ou pseudo).' });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newSuperUser = new User({
+      username,
+      email,
+      phone,
+      password: hashedPassword,
+      firstName,
+      lastName,
+      role: 'superadmin',
+      adminType: 'superadmin',
+      isVerified: true,
+      emailVerified: true,
+      isAdminValidated: true,
+      status: 'active',
+      permissions: [
+        'manage_users',
+        'manage_partners',
+        'manage_ads',
+        'manage_events',
+        'manage_chats',
+        'manage_transactions',
+        'manage_categories',
+        'validate_admins'
+      ]
+    });
+
+    await newSuperUser.save();
+    res.status(201).json({
+      message: 'Super utilisateur créé avec succès.',
+      userId: newSuperUser._id
+    });
+  } catch (err) {
+    console.error('❌ CREATE SUPERUSER ERROR:', err.message || err);
+    res.status(500).json({ message: 'Erreur serveur à la création du super utilisateur' });
+  }
+};
+
+const logout = (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      return res.status(500).json({ message: 'Impossible de se déconnecter' });
+    }
+    // Le nom du cookie est souvent 'connect.sid' par défaut
+    res.clearCookie('connect.sid'); 
+    res.status(200).json({ message: 'Déconnexion réussie' });
+  });
 };
 
 module.exports = {
@@ -443,5 +516,7 @@ module.exports = {
   deleteUser,
   followUser,
   unfollowUser,
-  getCurrentUser
+  getCurrentUser,
+  createSuperUser,
+  logout
 };

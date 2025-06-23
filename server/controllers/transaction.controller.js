@@ -1,5 +1,5 @@
 const Transaction = require('../models/transaction.model');
-const Partner = require('../models/partner.model');
+const Business = require('../models/business.model');
 const campayService = require('../services/campay.service');
 const { v4: uuidv4 } = require('uuid');
 
@@ -18,11 +18,11 @@ const SUBSCRIPTION_PRICES = {
 exports.initiateSubscriptionPayment = async (req, res) => {
     try {
         const { subscriptionType, duration, phoneNumber, operator } = req.body;
-        const partnerId = req.params.partnerId;
+        const businessId = req.params.businessId;
 
         // Vérifier si le partenaire existe
-        const partner = await Partner.findById(partnerId);
-        if (!partner) {
+        const business = await Business.findById(businessId);
+        if (!business) {
             return res.status(404).json({ message: "Partenaire non trouvé" });
         }
 
@@ -39,7 +39,7 @@ exports.initiateSubscriptionPayment = async (req, res) => {
 
         // Créer la transaction dans notre base de données
         const transaction = new Transaction({
-            partnerId,
+            businessId,
             amount,
             subscriptionType,
             subscriptionDuration: duration,
@@ -95,18 +95,18 @@ exports.handlePaymentWebhook = async (req, res) => {
 
         // Si le paiement est réussi, mettre à jour l'abonnement du partenaire
         if (status === 'successful') {
-            const partner = await Partner.findById(transaction.partnerId);
-            if (partner) {
-                partner.subscriptionType = transaction.subscriptionType;
-                partner.subscriptionStatus = 'active';
+            const business = await Business.findById(transaction.businessId);
+            if (business) {
+                business.subscriptionType = transaction.subscriptionType;
+                business.subscriptionStatus = 'active';
                 
                 // Mettre à jour les dates d'abonnement
-                partner.subscriptionStartDate = new Date();
+                business.subscriptionStartDate = new Date();
                 const endDate = new Date();
                 endDate.setMonth(endDate.getMonth() + transaction.subscriptionDuration);
-                partner.subscriptionEndDate = endDate;
+                business.subscriptionEndDate = endDate;
 
-                await partner.save();
+                await business.save();
             }
         }
 
@@ -135,15 +135,15 @@ exports.checkPaymentStatus = async (req, res) => {
                 await transaction.save();
 
                 // Mettre à jour l'abonnement du partenaire
-                const partner = await Partner.findById(transaction.partnerId);
-                if (partner) {
-                    partner.subscriptionType = transaction.subscriptionType;
-                    partner.subscriptionStatus = 'active';
-                    partner.subscriptionStartDate = new Date();
+                const business = await Business.findById(transaction.businessId);
+                if (business) {
+                    business.subscriptionType = transaction.subscriptionType;
+                    business.subscriptionStatus = 'active';
+                    business.subscriptionStartDate = new Date();
                     const endDate = new Date();
                     endDate.setMonth(endDate.getMonth() + transaction.subscriptionDuration);
-                    partner.subscriptionEndDate = endDate;
-                    await partner.save();
+                    business.subscriptionEndDate = endDate;
+                    await business.save();
                 }
             }
 
@@ -160,17 +160,17 @@ exports.checkPaymentStatus = async (req, res) => {
     }
 };
 
-exports.getPartnerTransactions = async (req, res) => {
+exports.getBusinessTransactions = async (req, res) => {
     try {
-        const { partnerId } = req.params;
+        const { businessId } = req.params;
         const { page = 1, limit = 10 } = req.query;
 
-        const transactions = await Transaction.find({ partnerId })
+        const transactions = await Transaction.find({ businessId })
             .sort({ createdAt: -1 })
             .skip((page - 1) * limit)
             .limit(limit);
 
-        const total = await Transaction.countDocuments({ partnerId });
+        const total = await Transaction.countDocuments({ businessId });
 
         res.status(200).json({
             transactions,
