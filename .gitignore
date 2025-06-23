@@ -3,12 +3,15 @@
 
 # Mac system files
 .DS_Store
+mboawebapp/.DS_Store
+server/.DS_Store    
 
 # React build output
-build/
+mboawebapp/build/
 
 # Node modules
-node_modules/
+mboawebapp/node_modules/
+server/node_modules/
 
 # Logs
 logs
