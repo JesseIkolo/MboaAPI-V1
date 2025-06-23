@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ListChecks, Search, Filter } from 'lucide-react';
 import api from '../../services/api';
+import { Search } from 'lucide-react';
 
 const WaitlistPage = () => {
     const [users, setUsers] = useState([]);

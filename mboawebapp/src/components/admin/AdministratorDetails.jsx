@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Check, Clock, X, Trash2, Unlock, Shield } from 'lucide-react';
+import { Clock, X, Trash2, Unlock, Shield } from 'lucide-react';
 import api from '../../services/api'; // Importer notre service api
 
 const AdministratorDetails = ({ admin, onAdminUpdated }) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedPermissions, setSelectedPermissions] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -46,7 +45,6 @@ const AdministratorDetails = ({ admin, onAdminUpdated }) => {
             // Utiliser api.put pour la mise à jour
             await api.put(`/users/${admin._id}`, requestData);
 
-            setIsModalOpen(false);
             if (onAdminUpdated) onAdminUpdated();
         } catch (err) {
             console.error('Erreur complète:', err);
@@ -142,7 +140,7 @@ const AdministratorDetails = ({ admin, onAdminUpdated }) => {
                 <div className="ml-auto flex flex-col space-y-2">
                     {!admin.isAdminValidated && (
                         <button
-                            onClick={() => setIsModalOpen(true)}
+                            onClick={() => handleApprove()}
                             disabled={loading}
                             className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 mb-2"
                         >

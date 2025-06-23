@@ -27,7 +27,7 @@ const calculatePasswordStrength = (password) => {
 const PasswordStrengthIndicator = ({ password }) => {
   const strength = calculatePasswordStrength(password);
   const { color, label } = strengthLevels[strength];
-
+  console.log('------> strength', color, label);
   return (
     <div className="mt-2">
       <div className="flex items-center gap-2">

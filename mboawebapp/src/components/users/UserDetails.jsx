@@ -4,7 +4,6 @@ import {
     MapPin, 
     Mail, 
     Phone, 
-    Flag,
     MessageSquare,
     Heart,
     Ban,

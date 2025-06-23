@@ -101,12 +101,12 @@ const MboaFeatures = () => {
             <div className={`phones-container ${isAnimated ? "animated" : ""}`}>
               {/* Left phone image - will be replaced with actual image */}
               <div className="phone-placeholder left-phone">
-                <img src={communaute1} />
+                <img src={communaute1} alt="Communaute 1" />
               </div>
 
               {/* Right phone image - will be replaced with actual image */}
               <div className="phone-placeholder right-phone">
-                <img src={communaute2} />
+                <img src={communaute2} alt="Communaute 2" />
               </div>
             </div>
 
@@ -205,12 +205,12 @@ const MboaFeatures = () => {
             <div className={`phones-container ${isAnimated ? "animated" : ""}`}>
               {/* Left phone image - will be replaced with actual image */}
               <div className="phone-placeholder left-phone">
-                <img src={Abonnement1} />
+                <img src={Abonnement1} alt="Abonnement 1" />
               </div>
 
               {/* Right phone image - will be replaced with actual image */}
               <div className="phone-placeholder right-phone">
-                <img src={Abonnement2} />
+                <img src={Abonnement2} alt="Abonnement 2" />
               </div>
             </div>
 
@@ -219,7 +219,7 @@ const MboaFeatures = () => {
               <p>
                 Consulte en temps réel les vues, participations et interactions
                 sur tes événements. Pilote ta visibilité et améliore ton
-                organisation en un coup d’œil.
+                organisation en un coup d'œil.
               </p>
             </div>
             <div className="highlight-marke"></div>
@@ -239,7 +239,7 @@ const MboaFeatures = () => {
                   <p className="feature-description">
                     Abonne-toi pour débloquer des fonctionnalités avancées :
                     géolocalisation, personnalisation poussée, analytics
-                    détaillées et plus encore...
+                    détaillées et plus encore...
                   </p>
                 </div>
               </div>
@@ -267,10 +267,10 @@ const MboaFeatures = () => {
         <div className="promo-container">
           <div className="promo-box">
             <div className="promo-text">
-              <h1>Sur Mbo’a Events, tout le monde est invité!</h1>
+              <h1>Sur Mbo'a Events, tout le monde est invité!</h1>
               <p>
-                Notre applaution est 100% Camerounaise et facilite l’accès à
-                l’information pour tous. Elle est maintenant disponible sur
+                Notre applaution est 100% Camerounaise et facilite l'accès à
+                l'information pour tous. Elle est maintenant disponible sur
                 toutes les plateformes de téléchargement. Rejoignez-nous pour ne
                 rien manquer sur tout ce qui se passe au MBOA!
               </p>

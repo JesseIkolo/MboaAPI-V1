@@ -30,7 +30,6 @@ const UserList = ({ users = [], onUserSelect, selectedUserId, onUserStatusUpdate
                     events = [],
                     comments = [],
                     likes = [],
-                    createdAt
                 } = user;
 
                 return (

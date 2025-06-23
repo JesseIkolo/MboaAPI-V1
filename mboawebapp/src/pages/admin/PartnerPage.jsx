@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Users, Building2, MessageSquare, Calendar, Heart, Ban, UserCheck2, Plus } from 'lucide-react';
+import { Search, Filter, Plus } from 'lucide-react';
 import api from '../../services/api';
 import PartnerList from '../../components/partners/PartnerList';
 import PartnerDetails from '../../components/partners/PartnerDetails';

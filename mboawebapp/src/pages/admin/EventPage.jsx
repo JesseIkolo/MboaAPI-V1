@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Calendar, Users, MessageSquare, Heart, Plus } from 'lucide-react';
+import { Search, Filter, Plus } from 'lucide-react';
 import api from '../../services/api';
 import EventList from '../../components/events/EventList';
 import EventDetails from '../../components/events/EventDetails';
