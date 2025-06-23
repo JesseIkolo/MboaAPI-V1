@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import AdministratorList from './AdministratorList';
 import AdministratorDetails from './AdministratorDetails';
+import api from '../../services/api';
 
 const defaultPermissions = [
     'manage_users',
@@ -47,29 +48,17 @@ const AdministratorManagement = () => {
         setError(null);
         setSuccess(null);
         try {
-            const token = localStorage.getItem('token');
-            if (!token) throw new Error('Token non trouvé');
-            const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:2103'}/api/users`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
+            await api.post('/users', {
                     ...form,
                     role: 'admin',
-                }),
             });
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.message || 'Erreur lors de la création de l\'administrateur');
-            }
+            
             setSuccess('Administrateur ajouté avec succès !');
             setForm({ firstName: '', lastName: '', email: '', password: '', permissions: [] });
             setShowAddModal(false);
-            window.location.reload(); // Pour rafraîchir la liste
+            window.location.reload();
         } catch (err) {
-            setError(err.message);
+            setError(err.response?.data?.message || err.message || 'Erreur lors de la création');
         } finally {
             setLoading(false);
         }

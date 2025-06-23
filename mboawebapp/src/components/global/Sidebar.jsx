@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React from 'react';
+import { useLocation } from 'react-router-dom';
 import AuthService from '../../services/auth.service';
+import { useAuth } from '../../contexts/AuthContext';
 import {
     Home,
     Calendar,
@@ -15,189 +16,58 @@ import {
     Globe,
     LogOut,
     ListChecks,
+    Briefcase,
+    Gift,
+    Award,
+    Handshake
 } from 'lucide-react';
 
-// Composant Sidebar
-const Sidebar = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const [currentUser, setCurrentUser] = useState(null);
-    const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-                const userData = await AuthService.getCurrentUser();
-                if (!userData) {
-                    throw new Error('Utilisateur non authentifié');
-                }
-                setCurrentUser(userData);
-            } catch (err) {
-                console.error('Erreur lors de la récupération de l\'utilisateur:', err);
-                setError(err.message);
-                if (err.message.includes('non authentifié') || err.message.includes('Token')) {
-                    navigate('/login');
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchUser();
-    }, [navigate]);
-
-    const handleNavigation = (itemId) => {
-        switch (itemId) {
-            case 'accueil':
-                navigate('/admin');
-                break;
-            case 'waitlist':
-                navigate('/admin/waitlist');
-                break;
-            case 'evenements':
-                navigate('/admin/events');
-                break;
-            case 'transactions':
-                navigate('/admin/transactions');
-                break;
-            case 'partenaires':
-                navigate('/admin/partners');
-                break;
-            case 'publicites':
-                navigate('/admin/ads');
-                break;
-            case 'messagerie':
-                navigate('/admin/messages');
-                break;
-            case 'utilisateurs':
-                navigate('/admin/users');
-                break;
-            case 'statistiques':
-                navigate('/admin/stats');
-                break;
-            case 'administration':
-                navigate('/admin/administration');
-                break;
-            default:
-                break;
-        }
-    };
-
+const Sidebar = ({ activeItem, handleNavigation }) => {
+    const { user, logout, isLoading } = useAuth();
+    
     const handleLogout = async () => {
         try {
-            await AuthService.logout();
-            navigate('/login');
+            await logout();
+            // La redirection est déjà gérée par le AuthContext/PrivateRoute
         } catch (err) {
             console.error('Erreur lors de la déconnexion:', err);
-            navigate('/login');
         }
     };
 
     const menuItems = [
-        { 
-            id: 'accueil', 
-            label: 'Accueil', 
-            icon: Home, 
-            permission: null 
-        },
-        { 
-            id: 'evenements', 
-            label: 'Évènements', 
-            icon: Calendar, 
-            permission: 'manage_events' 
-        },
-        { 
-            id: 'transactions', 
-            label: 'Transactions', 
-            icon: CreditCard, 
-            permission: 'manage_transactions' 
-        },
-        { 
-            id: 'partenaires', 
-            label: 'Partenaires', 
-            icon: Users, 
-            permission: 'manage_partners' 
-        },
-        { 
-            id: 'publicites', 
-            label: 'Publicités', 
-            icon: Megaphone, 
-            permission: 'manage_ads' 
-        },
-        { 
-            id: 'messagerie', 
-            label: 'Messagerie', 
-            icon: MessageSquare, 
-            permission: 'manage_chats' 
-        },
-        { 
-            id: 'waitlist', 
-            label: 'Liste d\'attente', 
-            icon: ListChecks, 
-            permission: 'manage_users' 
-        },
-        { 
-            id: 'utilisateurs', 
-            label: 'Utilisateurs', 
-            icon: Users, 
-            permission: 'manage_users' 
-        },
-        { 
-            id: 'statistiques', 
-            label: 'Statistiques', 
-            icon: BarChart3, 
-            permission: null 
-        },
+        { id: 'accueil', label: 'Accueil', icon: Home, permission: null },
+        { id: 'evenements', label: 'Évènements', icon: Calendar, permission: 'manage_events' },
+        { id: 'transactions', label: 'Transactions', icon: CreditCard, permission: 'manage_transactions' },
+        { id: 'partenaires', label: 'Partenaires', icon: Handshake, permission: 'manage_partners' },
+        { id: 'publicites', label: 'Publicités', icon: Megaphone, permission: 'manage_ads' },
+        { id: 'messagerie', label: 'Messagerie', icon: MessageSquare, permission: 'manage_chats' },
+        { id: 'liste-d-attente', label: 'Liste d\'attente', icon: ListChecks, permission: 'manage_users' },
+        { id: 'utilisateurs', label: 'Utilisateurs', icon: Users, permission: 'manage_users' },
+        { id: 'statistiques', label: 'Statistiques', icon: BarChart3, permission: 'manage_users' },
+        { id: 'business', label: 'Business', icon: Briefcase, permission: 'manage_business' },
+        { id: 'parrainage', label: 'Parrainage', icon: Gift, permission: 'manage_referrals' },
+        { id: 'recompenses', label: 'Récompenses', icon: Award, permission: 'manage_rewards' },
+        { id: 'regles-recompense', label: 'Règles Récompense', icon: FileText, permission: 'manage_rewards' },
     ];
 
     const bottomItems = [
-        { 
-            id: 'administration', 
-            label: 'Administration', 
-            icon: Settings,
-            permission: 'validate_admins'
-        },
-        { 
-            id: 'roles', 
-            label: 'Rôles', 
-            icon: UserCog,
-            permission: 'validate_admins'
-        },
-        { 
-            id: 'signalements', 
-            label: 'Signalements', 
-            icon: FileText,
-            permission: 'manage_users'
-        },
-        { 
-            id: 'english', 
-            label: 'English', 
-            icon: Globe,
-            permission: null
-        },
+        { id: 'administration', label: 'Administration', icon: Settings, permission: 'manage_admins' },
+        { id: 'roles', label: 'Rôles', icon: UserCog, permission: 'manage_admins' },
+        { id: 'signalements', label: 'Signalements', icon: FileText, permission: 'manage_users' },
+        { id: 'english', label: 'English', icon: Globe, permission: null },
     ];
 
     const filterItemsByPermission = (items) => {
-        if (!currentUser) return items.filter(item => !item.permission);
+        if (!user) return items.filter(item => !item.permission);
         return items.filter(item => 
-            !item.permission || AuthService.hasPermission(currentUser, item.permission)
+            !item.permission || AuthService.hasPermission(user, item.permission)
         );
     };
 
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="w-64 bg-white h-screen border-r border-gray-200 flex items-center justify-center">
                 <div className="text-gray-500">Chargement...</div>
-            </div>
-        );
-    }
-
-    if (error && !currentUser) {
-        return (
-            <div className="w-64 bg-white h-screen border-r border-gray-200 flex items-center justify-center">
-                <div className="text-red-500 text-center px-4">{error}</div>
             </div>
         );
     }
@@ -225,7 +95,7 @@ const Sidebar = () => {
                 <nav className="space-y-1 px-3">
                     {filterItemsByPermission(menuItems).map((item) => {
                         const Icon = item.icon;
-                        const isActive = location.pathname.startsWith(`/admin${item.id === 'accueil' ? '' : '/' + item.id}`);
+                        const isActive = activeItem === item.id;
                         return (
                             <button
                                 key={item.id}

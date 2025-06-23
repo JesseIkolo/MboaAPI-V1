@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Toaster } from 'react-hot-toast';
 import GetStarted from './pages/auth/GetStarted';
 import Home from './pages/admin';
@@ -24,65 +25,72 @@ const StatsPage = () => <div style={{padding:40}}>StatsPage (à implémenter)</d
 function App() {
   return (
     <NotificationProvider>
-      <Router>
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              background: '#363636',
-              color: '#fff',
-            },
-            success: {
-              duration: 3000,
-              theme: {
-                primary: '#4aed88',
+      <AuthProvider>
+        <Router>
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: '#363636',
+                color: '#fff',
               },
-            },
-          }}
-        />
-        <Routes>
-          {/* Route publique */}
-          <Route path="/" element={<Welcome />} />
-          <Route path="/GetStarted" element={<GetStarted />} />
-          
-          {/* Routes protégées imbriquées */}
-          <Route
-            path="/admin/*"
-            element={
-              <PrivateRoute>
-                <Home />
-              </PrivateRoute>
-            }
-          >
-            <Route index element={<DashboardPage />} />
-            <Route path="waitlist" element={<WaitlistPage />} />
-            <Route path="events" element={<EventPage />} />
-            <Route path="transactions" element={<TransactionsPage />} />
-            <Route path="partners" element={<PartnerPage />} />
-            <Route path="ads" element={<AdsPage />} />
-            <Route path="messages" element={<MessagesPage />} />
-            <Route path="users" element={<UserPage />} />
-            <Route path="stats" element={<StatsPage />} />
-            <Route path="settings" element={<SettingsPage />} />
-            <Route path="administration" element={<AdminPage />} />
-            {/* autres sous-pages ici */}
-          </Route>
+              success: {
+                duration: 3000,
+                theme: {
+                  primary: '#4aed88',
+                },
+              },
+            }}
+          />
+          <Routes>
+            {/* Route publique */}
+            <Route path="/" element={<Welcome />} />
+            <Route path="/GetStarted" element={<GetStarted />} />
+            
+            {/* Routes protégées imbriquées */}
+            <Route
+              path="/admin/*"
+              element={
+                <PrivateRoute>
+                  <Home />
+                </PrivateRoute>
+              }
+            >
+              <Route index element={<DashboardPage />} />
+              <Route path="waitlist" element={<WaitlistPage />} />
+              <Route path="events" element={<EventPage />} />
+              <Route path="transactions" element={<TransactionsPage />} />
+              <Route path="partners" element={<PartnerPage />} />
+              <Route path="ads" element={<AdsPage />} />
+              <Route path="messages" element={<MessagesPage />} />
+              <Route path="users" element={<UserPage />} />
+              <Route path="stats" element={<StatsPage />} />
+              <Route path="settings" element={<SettingsPage />} />
+              <Route path="administration" element={<AdminPage />} />
+              {/* autres sous-pages ici */}
+            </Route>
 
-          {/* Redirection par défaut */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-        {/*<EnvTest />*/}
-      </Router>
+            {/* Redirection par défaut */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+          {/*<EnvTest />*/}
+        </Router>
+      </AuthProvider>
     </NotificationProvider>
   );
 }
 
 // Composant de protection des routes
 const PrivateRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
+  const { isAuthenticated, isLoading } = useAuth();
   
-  if (!token) {
+  if (isLoading) {
+    // Afficher un loader pendant la vérification de l'auth
+    return <div>Chargement...</div>;
+  }
+  
+  if (!isAuthenticated) {
     return <Navigate to="/GetStarted" replace />;
   }
   

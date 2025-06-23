@@ -226,3 +226,76 @@ exports.deleteEvent = async (req, res) => {
         res.status(500).json({ message: "Erreur lors de la suppression de l'événement", error: error.message }); // Include the error message
     }
 };
+
+// Lister les événements à modérer
+exports.getPendingModerationEvents = async (req, res) => {
+  try {
+    const events = await Event.find({ 'moderation.status': 'pending' });
+    res.json(events);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Approuver ou rejeter un événement
+exports.moderateEvent = async (req, res) => {
+  try {
+    const { status, reason } = req.body; // status: 'approved' ou 'rejected'
+    const event = await Event.findById(req.params.id);
+    if (!event) return res.status(404).json({ message: 'Événement non trouvé' });
+    event.moderation.status = status;
+    event.moderation.reason = reason || '';
+    if (status === 'approved') {
+      event.status = 'published';
+      event.isPublic = true;
+      event.visibility = 'public';
+    } else if (status === 'rejected') {
+      event.status = 'draft';
+      event.isPublic = false;
+      event.visibility = 'private';
+    }
+    await event.save();
+    res.json(event);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Promouvoir un événement
+exports.promoteEvent = async (req, res) => {
+  try {
+    const { budget, startDate, endDate } = req.body;
+    const event = await Event.findById(req.params.id);
+    if (!event) return res.status(404).json({ message: 'Événement non trouvé' });
+    event.promotion.budget = budget;
+    event.promotion.status = 'active';
+    event.promotion.startDate = startDate;
+    event.promotion.endDate = endDate;
+    await event.save();
+    res.json(event);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Incrémenter les vues
+exports.incrementEventView = async (req, res) => {
+  try {
+    const event = await Event.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } }, { new: true });
+    if (!event) return res.status(404).json({ message: 'Événement non trouvé' });
+    res.json({ views: event.views });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Incrémenter les interactions
+exports.incrementEventInteraction = async (req, res) => {
+  try {
+    const event = await Event.findByIdAndUpdate(req.params.id, { $inc: { 'stats.interactions': 1 } }, { new: true });
+    if (!event) return res.status(404).json({ message: 'Événement non trouvé' });
+    res.json({ interactions: event.stats?.interactions || 0 });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

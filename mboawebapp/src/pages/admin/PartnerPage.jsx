@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Users, Building2, MessageSquare, Calendar, Heart, Ban, UserCheck2, Plus } from 'lucide-react';
-import { config } from '../../config/env';
+import api from '../../services/api';
 import PartnerList from '../../components/partners/PartnerList';
 import PartnerDetails from '../../components/partners/PartnerDetails';
 import AddPartnerModal from '../../components/partners/AddPartnerModal';
@@ -25,24 +25,8 @@ const PartnerPage = () => {
     const fetchPartners = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem('token');
-            if (!token) {
-                throw new Error('Token non trouvé');
-            }
-
-            const response = await fetch(`${config.API_URL}/api/partners`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Erreur lors de la récupération des partenaires');
-            }
-
-            const data = await response.json();
-            setPartners(data);
+            const response = await api.get('/businesses');
+            setPartners(response.data);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -67,26 +51,12 @@ const PartnerPage = () => {
 
     const handlePartnerStatusUpdate = async (partnerId, action) => {
         try {
-            const token = localStorage.getItem('token');
-            if (!token) throw new Error('Token non trouvé');
-
-            const response = await fetch(`${config.API_URL}/api/partners/${partnerId}/${action}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`Erreur lors de ${action === 'block' ? 'du blocage' : 'du déblocage'} du partenaire`);
-            }
-
+            await api.put(`/businesses/${partnerId}/${action}`);
             await fetchPartners();
             
             if (selectedPartner?._id === partnerId) {
-                const updatedPartner = partners.find(p => p._id === partnerId);
-                setSelectedPartner(updatedPartner);
+                const updatedPartnerResponse = await api.get(`/businesses/${partnerId}`);
+                setSelectedPartner(updatedPartnerResponse.data);
             }
         } catch (err) {
             setError(err.message);
@@ -95,22 +65,7 @@ const PartnerPage = () => {
 
     const handleAddPartner = async (partnerData) => {
         try {
-            const token = localStorage.getItem('token');
-            if (!token) throw new Error('Token non trouvé');
-
-            const response = await fetch(`${config.API_URL}/api/partners`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(partnerData)
-            });
-
-            if (!response.ok) {
-                throw new Error('Erreur lors de l\'ajout du partenaire');
-            }
-
+            await api.post('/businesses', partnerData);
             await fetchPartners();
             setShowAddModal(false);
         } catch (err) {
@@ -133,9 +88,9 @@ const PartnerPage = () => {
     });
 
     return (
-        <div className="h-full bg-gray-50">
+        <div className="h-[calc(100vh-14rem)]">
             {/* En-tête de la page */}
-            <div className="bg-white border-b border-gray-200 px-8 py-6">
+            <div className="bg-white border-b border-gray-200 px-8 py-6 -mx-8 -mt-8 mb-6">
                 <div className="flex justify-between items-center">
                     <div>
                         <h1 className="text-2xl font-semibold text-gray-900">Gestion des Partenaires</h1>
@@ -154,7 +109,7 @@ const PartnerPage = () => {
             </div>
 
             {/* Contenu principal */}
-            <div className="flex h-[calc(100vh-12rem)]">
+            <div className="flex h-full">
                 {/* Section gauche - Liste des partenaires */}
                 <div className="w-2/3 border-r border-gray-200 bg-white p-6">
                     {/* Barre de recherche et filtres */}
@@ -249,9 +204,9 @@ const PartnerPage = () => {
 
             {/* Modal d'ajout de partenaire */}
             {showAddModal && (
-                <AddPartnerModal
+                <AddPartnerModal 
                     onClose={() => setShowAddModal(false)}
-                    onAdd={handleAddPartner}
+                    onAddPartner={handleAddPartner}
                 />
             )}
         </div>

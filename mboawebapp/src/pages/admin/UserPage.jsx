@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Users, Flag, MessageSquare, Calendar, Heart, Ban, UserCheck2 } from 'lucide-react';
-import { config } from '../../config/env';
+import api from '../../services/api';
 import UserList from '../../components/users/UserList';
 import UserDetails from '../../components/users/UserDetails';
 
@@ -23,24 +23,8 @@ const UserPage = () => {
     const fetchUsers = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem('token');
-            if (!token) {
-                throw new Error('Token non trouvé');
-            }
-
-            const response = await fetch(`${config.API_URL}/api/users`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Erreur lors de la récupération des utilisateurs');
-            }
-
-            const data = await response.json();
-            setUsers(data);
+            const response = await api.get('/users');
+            setUsers(response.data);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -65,28 +49,12 @@ const UserPage = () => {
 
     const handleUserStatusUpdate = async (userId, action) => {
         try {
-            const token = localStorage.getItem('token');
-            if (!token) throw new Error('Token non trouvé');
-
-            const response = await fetch(`${config.API_URL}/api/users/${userId}/${action}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`Erreur lors de ${action === 'block' ? 'du blocage' : 'du déblocage'} de l'utilisateur`);
-            }
-
-            // Rafraîchir la liste des utilisateurs
+            await api.put(`/users/${userId}/${action}`);
             await fetchUsers();
             
-            // Si l'utilisateur modifié est celui sélectionné, mettre à jour ses détails
             if (selectedUser?._id === userId) {
-                const updatedUser = users.find(u => u._id === userId);
-                setSelectedUser(updatedUser);
+                const updatedUserResponse = await api.get(`/users/${userId}`);
+                setSelectedUser(updatedUserResponse.data);
             }
         } catch (err) {
             setError(err.message);
@@ -109,9 +77,9 @@ const UserPage = () => {
     });
 
     return (
-        <div className="h-full bg-gray-50">
+        <div className="h-[calc(100vh-14rem)]">
             {/* En-tête de la page */}
-            <div className="bg-white border-b border-gray-200 px-8 py-6">
+            <div className="bg-white border-b border-gray-200 px-8 py-6 -mx-8 -mt-8 mb-6">
                 <h1 className="text-2xl font-semibold text-gray-900">Gestion des Utilisateurs</h1>
                 <p className="mt-1 text-sm text-gray-500">
                     Gérez et supervisez tous les utilisateurs de la plateforme
@@ -119,7 +87,7 @@ const UserPage = () => {
             </div>
 
             {/* Contenu principal */}
-            <div className="flex h-[calc(100vh-12rem)]">
+            <div className="flex h-full">
                 {/* Section gauche - Liste des utilisateurs */}
                 <div className="w-2/3 border-r border-gray-200 bg-white p-6">
                     {/* Barre de recherche et filtres */}

@@ -5,9 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../../contexts/NotificationContext';
 import PasswordStrengthIndicator from '../../components/passwordstrengthindicator';
 import OTPValidation from './OTPValidation';
+import api from '../../services/api'; // Importer l'instance axios
+import { useAuth } from '../../contexts/AuthContext'; // Importer useAuth
 
 export default function AuthInterface() {
   const navigate = useNavigate();
+  const { login } = useAuth(); // Utiliser le contexte
   const { showError, showSuccess, showInfo } = useNotification();
   const [isLogin, setIsLogin] = useState(true);
   const [loginMethod, setLoginMethod] = useState('username'); // 'username', 'email', 'phone'
@@ -64,59 +67,40 @@ export default function AuthInterface() {
       setIsLoading(true);
       setError('');
 
-      // Préparation des données de connexion
       const loginData = {
         identifier: loginIdentifier,
         password: loginPassword
       };
 
-      const response = await fetch(`${config.API_URL}${config.AUTH_ENDPOINTS.LOGIN}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(loginData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (data.requiresOTP) {
-          showInfo('Un code OTP a été envoyé pour vérification');
-          // Stocker l'email pour la validation OTP
-          localStorage.setItem('userEmail', loginIdentifier);
-          setCurrentStep('otp');
-          return;
-        }
-        if (response.status === 403) {
-          showError(`Compte bloqué. Réessayez après ${new Date(data.lockUntil).toLocaleString()}`);
-        } else {
-          showError(data.message || 'Identifiants invalides');
-        }
-        return;
-      }
-
-      // Vérifier si l'utilisateur est un administrateur validé
-      if (!data.user || !data.user.isAdminValidated) {
-        showError('Accès réservé aux administrateurs validés');
-        return;
-      }
-
-      // Stocker le token et les informations utilisateur
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      // Appeler la fonction login du contexte
+      const user = await login(loginData);
 
       showSuccess('Connexion réussie !');
       
-      // Redirection vers la page admin
-      setTimeout(() => {
+      // La redirection est gérée par PrivateRoute, mais on peut
+      // la forcer ici pour plus de réactivité.
+      if (user.role === 'admin' || user.role === 'superadmin') {
         navigate('/admin', { replace: true });
-      }, 1000);
+      } else {
+        navigate('/', { replace: true });
+      }
 
     } catch (err) {
       console.error('Erreur de connexion:', err);
+      const errorData = err.response?.data;
+      if (errorData) {
+        if (errorData.requiresOTP) {
+          showInfo('Un code OTP a été envoyé pour vérification');
+          localStorage.setItem('userEmail', loginIdentifier);
+          setCurrentStep('otp');
+        } else if (err.response?.status === 403 && errorData.lockUntil) {
+          showError(`Compte bloqué. Réessayez après ${new Date(errorData.lockUntil).toLocaleString()}`);
+        } else {
+          showError(errorData.message || 'Identifiants invalides');
+        }
+      } else {
       showError('Erreur de connexion au serveur');
+      }
     } finally {
       setIsLoading(false);
     }

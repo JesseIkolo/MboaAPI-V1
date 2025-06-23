@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ListChecks, Search, Filter } from 'lucide-react';
-import { config } from '../../config/env';
+import api from '../../services/api';
 
 const WaitlistPage = () => {
     const [users, setUsers] = useState([]);
@@ -16,10 +16,8 @@ const WaitlistPage = () => {
     const fetchWaitlist = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`${config.API_URL}${config.AUTH_ENDPOINTS.WAITING_LIST}`);
-            if (!response.ok) throw new Error('Erreur lors de la récupération de la liste d\'attente');
-            const data = await response.json();
-            setUsers(data);
+            const response = await api.get('/waitlist');
+            setUsers(response.data);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -29,19 +27,7 @@ const WaitlistPage = () => {
 
     const handleAction = async (userId, action) => {
         try {
-            const token = localStorage.getItem('token');
-            if (!token) throw new Error('Token non trouvé');
-
-            const response = await fetch(`${config.API_URL}/api/admin/waitlist/${userId}/${action}`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) throw new Error('Erreur lors de la mise à jour du statut');
-            
+            await api.post(`/admin/waitlist/${userId}/${action}`);
             // Rafraîchir la liste
             fetchWaitlist();
         } catch (err) {
@@ -80,7 +66,7 @@ const WaitlistPage = () => {
     }
 
     return (
-        <div className="p-8">
+        <div>
             <div className="flex items-center justify-between mb-8">
                 <h1 className="text-2xl font-semibold text-gray-900">
                     Liste d'attente

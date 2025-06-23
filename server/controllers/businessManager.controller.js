@@ -1,19 +1,19 @@
-const Partner = require('../models/partner.model');
+const Business = require('../models/business.model');
 const User = require('../models/user.model');
 
 // Ajouter un Business Manager
 exports.addBusinessManager = async (req, res) => {
     try {
-        const partnerId = req.params.partnerId;
+        const businessId = req.params.businessId;
         const { userId, permissions } = req.body;
 
-        const partner = await Partner.findById(partnerId);
-        if (!partner) {
+        const business = await Business.findById(businessId);
+        if (!business) {
             return res.status(404).json({ message: "Partenaire non trouvé" });
         }
 
         // Vérifier la limite des Business Managers pour Mboa Plus
-        if (partner.subscriptionType === 'mboaPlus' && partner.businessManagers.length >= 3) {
+        if (business.subscriptionType === 'mboaPlus' && business.businessManagers.length >= 3) {
             return res.status(400).json({ 
                 message: "Limite de Business Managers atteinte pour le plan Mboa Plus. Passez au plan Premium pour ajouter plus de managers." 
             });
@@ -26,7 +26,7 @@ exports.addBusinessManager = async (req, res) => {
         }
 
         // Vérifier si l'utilisateur est déjà Business Manager
-        const isExistingManager = partner.businessManagers.some(
+        const isExistingManager = business.businessManagers.some(
             manager => manager.userId.toString() === userId
         );
         if (isExistingManager) {
@@ -34,7 +34,7 @@ exports.addBusinessManager = async (req, res) => {
         }
 
         // Ajouter le nouveau Business Manager
-        partner.businessManagers.push({
+        business.businessManagers.push({
             userId,
             permissions: {
                 canCreateEvent: permissions.canCreateEvent || false,
@@ -50,8 +50,8 @@ exports.addBusinessManager = async (req, res) => {
             }
         });
 
-        await partner.save();
-        res.status(201).json(partner);
+        await business.save();
+        res.status(201).json(business);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -60,15 +60,15 @@ exports.addBusinessManager = async (req, res) => {
 // Obtenir tous les Business Managers d'un partenaire
 exports.getBusinessManagers = async (req, res) => {
     try {
-        const partnerId = req.params.partnerId;
-        const partner = await Partner.findById(partnerId)
+        const businessId = req.params.businessId;
+        const business = await Business.findById(businessId)
             .populate('businessManagers.userId', 'name email');
 
-        if (!partner) {
+        if (!business) {
             return res.status(404).json({ message: "Partenaire non trouvé" });
         }
 
-        res.status(200).json(partner.businessManagers);
+        res.status(200).json(business.businessManagers);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -77,15 +77,15 @@ exports.getBusinessManagers = async (req, res) => {
 // Mettre à jour les permissions d'un Business Manager
 exports.updateBusinessManagerPermissions = async (req, res) => {
     try {
-        const { partnerId, managerId } = req.params;
+        const { businessId, managerId } = req.params;
         const { permissions } = req.body;
 
-        const partner = await Partner.findById(partnerId);
-        if (!partner) {
+        const business = await Business.findById(businessId);
+        if (!business) {
             return res.status(404).json({ message: "Partenaire non trouvé" });
         }
 
-        const managerIndex = partner.businessManagers.findIndex(
+        const managerIndex = business.businessManagers.findIndex(
             manager => manager._id.toString() === managerId
         );
 
@@ -94,13 +94,13 @@ exports.updateBusinessManagerPermissions = async (req, res) => {
         }
 
         // Mettre à jour les permissions
-        partner.businessManagers[managerIndex].permissions = {
-            ...partner.businessManagers[managerIndex].permissions,
+        business.businessManagers[managerIndex].permissions = {
+            ...business.businessManagers[managerIndex].permissions,
             ...permissions
         };
 
-        await partner.save();
-        res.status(200).json(partner.businessManagers[managerIndex]);
+        await business.save();
+        res.status(200).json(business.businessManagers[managerIndex]);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -109,18 +109,18 @@ exports.updateBusinessManagerPermissions = async (req, res) => {
 // Supprimer un Business Manager
 exports.removeBusinessManager = async (req, res) => {
     try {
-        const { partnerId, managerId } = req.params;
+        const { businessId, managerId } = req.params;
 
-        const partner = await Partner.findById(partnerId);
-        if (!partner) {
+        const business = await Business.findById(businessId);
+        if (!business) {
             return res.status(404).json({ message: "Partenaire non trouvé" });
         }
 
-        partner.businessManagers = partner.businessManagers.filter(
+        business.businessManagers = business.businessManagers.filter(
             manager => manager._id.toString() !== managerId
         );
 
-        await partner.save();
+        await business.save();
         res.status(200).json({ message: "Business Manager supprimé avec succès" });
     } catch (error) {
         res.status(500).json({ message: error.message });

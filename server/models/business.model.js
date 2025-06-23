@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const partnerSchema = new mongoose.Schema({
+const businessSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
@@ -27,7 +27,7 @@ const partnerSchema = new mongoose.Schema({
         enum: ['active', 'inactive', 'pending'],
         default: 'pending'
     },
-    partnerType: {
+    businessType: {
         type: String,
         enum: ['sponsor', 'venue', 'service', 'media'],
         required: true
@@ -47,4 +47,4 @@ const partnerSchema = new mongoose.Schema({
     timestamps: true
 });
 
-module.exports = mongoose.model('Partner', partnerSchema); 
+module.exports = mongoose.model('Business', businessSchema); 

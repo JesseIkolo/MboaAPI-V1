@@ -1,6 +1,6 @@
 const User = require('../models/user.model');
 const Event = require('../models/event.model');
-const Partner = require('../models/partner.model');
+const Business = require('../models/business.model');
 const Transaction = require('../models/transaction.model');
 const Waitlist = require('../models/waitlist.model');
 
@@ -14,8 +14,8 @@ const getDashboardStats = async (req, res) => {
         const eventsCount = await Event.countDocuments();
         console.log('------> eventsCount', eventsCount);
         // Récupérer le nombre de partenaires
-        const partnersCount = await Partner.countDocuments();
-        console.log('------> partnersCount', partnersCount);
+        const businessesCount = await Business.countDocuments();
+        console.log('------> businessesCount', businessesCount);
         // Calculer le montant généré pour le mois en cours
         const currentDate = new Date();
         const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
@@ -53,7 +53,7 @@ const getDashboardStats = async (req, res) => {
         res.json({
             waitlist: formatNumber(waitlistCount),
             events: formatNumber(eventsCount),
-            partners: formatNumber(partnersCount),
+            businesses: formatNumber(businessesCount),
             monthlyRevenue: formatNumber(monthlyRevenue[0]?.total || 0),
             premiumUsers: formatNumber(premiumUsersCount),
             freemiumUsers: formatNumber(freemiumUsersCount)

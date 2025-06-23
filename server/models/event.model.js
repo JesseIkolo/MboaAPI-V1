@@ -219,6 +219,16 @@ const eventSchema = new Schema({
             type: Boolean,
             default: true
         }
+    },
+    promotion: {
+        budget: { type: Number, default: 0 },
+        status: { type: String, enum: ['none', 'pending', 'active', 'expired'], default: 'none' },
+        startDate: Date,
+        endDate: Date
+    },
+    moderation: {
+        status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+        reason: { type: String }
     }
 }, {
     timestamps: true

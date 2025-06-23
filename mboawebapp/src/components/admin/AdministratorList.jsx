@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
-import { config } from '../../config/env';
+import api from '../../services/api';
 
 const AdministratorList = ({ onSelectAdmin, selectedAdmin }) => {
     const [admins, setAdmins] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [statusFilter, setStatusFilter] = useState('all');
 
     useEffect(() => {
         fetchAdmins();
@@ -14,27 +15,12 @@ const AdministratorList = ({ onSelectAdmin, selectedAdmin }) => {
 
     const fetchAdmins = async () => {
         try {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                throw new Error('Token non trouvé');
-            }
-
-            // Récupérer tous les administrateurs
-            const response = await fetch(`${config.API_URL}/api/users?role=admin`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Erreur lors de la récupération des administrateurs');
-            }
-
-            const data = await response.json();
-            setAdmins(data);
+            setLoading(true);
+            const response = await api.get('/users?role=admin');
+            setAdmins(response.data);
         } catch (error) {
             console.error('Error fetching administrators:', error);
-            setError(error.message);
+            setError(error.message || 'Erreur lors de la récupération des administrateurs');
         } finally {
             setLoading(false);
         }
@@ -42,12 +28,18 @@ const AdministratorList = ({ onSelectAdmin, selectedAdmin }) => {
 
     const filteredAdmins = admins.filter(admin => {
         const searchTerm = searchQuery.toLowerCase();
-        return (
+        const matchesSearch = (
             admin.firstName?.toLowerCase().includes(searchTerm) ||
             admin.lastName?.toLowerCase().includes(searchTerm) ||
             admin.email?.toLowerCase().includes(searchTerm) ||
             admin.username?.toLowerCase().includes(searchTerm)
         );
+        const matchesStatus =
+            statusFilter === 'all' ||
+            (statusFilter === 'validated' && admin.isAdminValidated) ||
+            (statusFilter === 'blocked' && admin.isBlocked) ||
+            (statusFilter === 'pending' && !admin.isAdminValidated && !admin.isBlocked);
+        return matchesSearch && matchesStatus;
     });
 
     const getStatusColor = (admin) => {
@@ -80,9 +72,9 @@ const AdministratorList = ({ onSelectAdmin, selectedAdmin }) => {
 
     return (
         <div className="flex flex-col h-full">
-            {/* Search Bar */}
-            <div className="p-4 border-b border-gray-200">
-                <div className="relative">
+            {/* Search & Filters */}
+            <div className="p-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:space-x-4 space-y-2 md:space-y-0">
+                <div className="relative flex-1">
                     <input
                         type="text"
                         placeholder="Rechercher un administrateur..."
@@ -91,6 +83,12 @@ const AdministratorList = ({ onSelectAdmin, selectedAdmin }) => {
                         className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                </div>
+                <div className="flex space-x-2">
+                    <button onClick={() => setStatusFilter('all')} className={`px-3 py-1 rounded ${statusFilter==='all'?'bg-blue-600 text-white':'bg-gray-100 text-gray-700'}`}>Tous</button>
+                    <button onClick={() => setStatusFilter('validated')} className={`px-3 py-1 rounded ${statusFilter==='validated'?'bg-green-600 text-white':'bg-gray-100 text-gray-700'}`}>Validés</button>
+                    <button onClick={() => setStatusFilter('pending')} className={`px-3 py-1 rounded ${statusFilter==='pending'?'bg-yellow-500 text-white':'bg-gray-100 text-gray-700'}`}>En attente</button>
+                    <button onClick={() => setStatusFilter('blocked')} className={`px-3 py-1 rounded ${statusFilter==='blocked'?'bg-red-600 text-white':'bg-gray-100 text-gray-700'}`}>Bloqués</button>
                 </div>
             </div>
 
@@ -141,6 +139,10 @@ const AdministratorList = ({ onSelectAdmin, selectedAdmin }) => {
                                     <div className="text-sm text-gray-500">{admin.email}</div>
                                     <div className="text-xs text-gray-400 mt-1">
                                         @{admin.username} • {admin.role === 'superadmin' ? 'Super Admin' : 'Admin'}
+                                    </div>
+                                    <div className="text-xs text-gray-400 mt-1 italic">
+                                        {/* Placeholder activité récente */}
+                                        Dernière activité : à venir
                                     </div>
                                 </div>
                                 <div className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(admin)}`}>

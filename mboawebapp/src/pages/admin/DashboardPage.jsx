@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, Users, Building2, TrendingUp, Activity, Clock, ListChecks } from 'lucide-react';
 import { config } from '../../config/env';
 import WaitlistPage from './WaitlistPage';
+import DashboardStats from '../../components/admin/DashboardStats';
 
 const DashboardPage = () => {
     const [stats, setStats] = useState({
@@ -17,7 +18,10 @@ const DashboardPage = () => {
             approved: 0,
             rejected: 0
         },
-        recentWaitlist: []
+        recentWaitlist: [],
+        premiumUsers: 0,
+        freemiumUsers: 0,
+        monthlyRevenue: 0
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -32,7 +36,7 @@ const DashboardPage = () => {
             const token = localStorage.getItem('token');
             if (!token) throw new Error('Token non trouvé');
 
-            const response = await fetch(`${config.API_URL}/api/admin/dashboard`, {
+            const response = await fetch(`${config.API_URL}/api/stats/dashboard`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -41,7 +45,28 @@ const DashboardPage = () => {
             if (!response.ok) throw new Error('Erreur lors de la récupération des statistiques');
 
             const data = await response.json();
-            setStats(data);
+            setStats({
+                totalEvents: data.events,
+                totalPartners: data.businesses,
+                waitlistStats: { total: data.waitlist },
+                premiumUsers: data.premiumUsers,
+                freemiumUsers: data.freemiumUsers,
+                monthlyRevenue: data.monthlyRevenue,
+                activeEvents: 0,
+                totalUsers: 0,
+                recentEvents: [],
+                topEvents: [],
+                recentWaitlist: []
+            });
+
+            console.log('Stats mappées pour DashboardStats:', {
+                totalEvents: data.events,
+                totalPartners: data.businesses,
+                waitlistStats: { total: data.waitlist },
+                premiumUsers: data.premiumUsers,
+                freemiumUsers: data.freemiumUsers,
+                monthlyRevenue: data.monthlyRevenue,
+            });
         } catch (err) {
             setError(err.message);
         } finally {
@@ -102,57 +127,7 @@ const DashboardPage = () => {
             </h1>
 
             {/* Statistiques générales */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div className="bg-white p-6 rounded-lg shadow">
-                    <div className="flex items-center">
-                        <Calendar className="w-10 h-10 text-blue-500" />
-                        <div className="ml-4">
-                            <p className="text-sm text-gray-500">Total Événements</p>
-                            <p className="text-2xl font-semibold text-gray-900">{stats.totalEvents}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white p-6 rounded-lg shadow">
-                    <div className="flex items-center">
-                        <Activity className="w-10 h-10 text-green-500" />
-                        <div className="ml-4">
-                            <p className="text-sm text-gray-500">Événements Actifs</p>
-                            <p className="text-2xl font-semibold text-gray-900">{stats.activeEvents}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white p-6 rounded-lg shadow">
-                    <div className="flex items-center">
-                        <Users className="w-10 h-10 text-purple-500" />
-                        <div className="ml-4">
-                            <p className="text-sm text-gray-500">Utilisateurs</p>
-                            <p className="text-2xl font-semibold text-gray-900">{stats.totalUsers}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white p-6 rounded-lg shadow">
-                    <div className="flex items-center">
-                        <Building2 className="w-10 h-10 text-orange-500" />
-                        <div className="ml-4">
-                            <p className="text-sm text-gray-500">Partenaires</p>
-                            <p className="text-2xl font-semibold text-gray-900">{stats.totalPartners}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white p-6 rounded-lg shadow">
-                    <div className="flex items-center">
-                        <ListChecks className="w-10 h-10 text-indigo-500" />
-                        <div className="ml-4">
-                            <p className="text-sm text-gray-500">Liste d'attente</p>
-                            <p className="text-2xl font-semibold text-gray-900">{stats.waitlistStats.total}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <DashboardStats stats={stats} loading={loading} error={error} />
 
             {/* Événements récents, populaires et Liste d'attente */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
