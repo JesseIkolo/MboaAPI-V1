@@ -7,10 +7,7 @@ import {
   MessageSquare, 
   BarChart3, 
   Settings, 
-  ChevronRight,
   UserCheck,
-  Building2,
-  LayoutDashboard,
   Briefcase,
   Handshake,
   Award,
@@ -20,7 +17,7 @@ import {
   UserCog,
   FileText
 } from 'lucide-react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import Sidebar from '../../components/global/Sidebar';
 import Header from '../../components/global/Header';
@@ -31,7 +28,6 @@ import AuthService from '../../services/auth.service';
 import EventPage from './EventPage';
 import UserPage from './UserPage';
 import PartnerPage from './PartnerPage';
-import SettingsPage from './SettingsPage';
 import BusinessPage from './BusinessPage';
 import ReferralPage from './ReferralPage';
 import RewardPage from './RewardPage';

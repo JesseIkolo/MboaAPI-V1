@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Calendar, Clock, MapPin, Image as ImageIcon, Info, Tag, DollarSign } from 'lucide-react';
+import { X, Calendar, MapPin, Image as ImageIcon, Info, Tag, DollarSign } from 'lucide-react';
 
 const AddEventModal = ({ onClose, onAdd }) => {
     const [formData, setFormData] = useState({

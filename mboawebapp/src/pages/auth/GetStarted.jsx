@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, User, Mail, Phone, Key } from 'lucide-react';
+import { Eye, EyeOff, User, Mail, Phone } from 'lucide-react';
 import { config } from '../../config/env';
 import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../../contexts/NotificationContext';
 import PasswordStrengthIndicator from '../../components/passwordstrengthindicator';
 import OTPValidation from './OTPValidation';
-import api from '../../services/api'; // Importer l'instance axios
 import { useAuth } from '../../contexts/AuthContext'; // Importer useAuth
 
 export default function AuthInterface() {
@@ -24,9 +23,6 @@ export default function AuthInterface() {
   const [loginIdentifier, setLoginIdentifier] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   
-  // Champs OTP
-  const [otpCode, setOtpCode] = useState('');
-  
   // Champs de réinitialisation
   const [resetEmail, setResetEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -43,6 +39,9 @@ export default function AuthInterface() {
     lastName: '',
     adminType: 'admin'
   });
+
+  // Ajoute le state pour otpCode
+  const [otpCode, setOtpCode] = useState('');
 
   const handleLogin = async () => {
     try {
@@ -685,6 +684,19 @@ export default function AuthInterface() {
                 {error}
               </div>
             )}
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Code OTP
+              </label>
+              <input
+                type="text"
+                value={otpCode}
+                onChange={e => setOtpCode(e.target.value)}
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+                placeholder="Code OTP reçu par email"
+              />
+            </div>
 
             <div>
               {renderPasswordField(

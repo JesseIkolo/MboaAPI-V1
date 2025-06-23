@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { 
-    Building2,
     Mail, 
     Phone, 
     MapPin,
@@ -10,7 +9,6 @@ import {
     Heart,
     Ban,
     UserCheck2,
-    Users,
     Clock,
     CheckCircle2,
     Plus,
@@ -19,7 +17,6 @@ import {
 
 const PartnerDetails = ({ partner, onPartnerStatusUpdate, onPartnerUpdated }) => {
     const [activeTab, setActiveTab] = useState('info');
-    const [showAddUserModal, setShowAddUserModal] = useState(false);
 
     if (!partner) {
         return (
@@ -170,7 +167,6 @@ const PartnerDetails = ({ partner, onPartnerStatusUpdate, onPartnerUpdated }) =>
                         <div className="flex justify-between items-center">
                             <h4 className="text-sm font-medium text-gray-500">Utilisateurs autorisés</h4>
                             <button
-                                onClick={() => setShowAddUserModal(true)}
                                 className="inline-flex items-center px-2 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded"
                             >
                                 <Plus className="w-4 h-4 mr-1" />

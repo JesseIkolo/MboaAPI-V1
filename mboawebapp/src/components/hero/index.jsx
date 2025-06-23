@@ -15,8 +15,8 @@ const MboaEventsAbout = () => {
     <div className="about-container">
       <section id="about" className="section">
       <div className="about-header">
-        <h1>Mbo’a Events,</h1>
-        <h2>Qu’est ce que c’est?</h2>
+        <h1>Mbo'a Events,</h1>
+        <h2>Qu'est ce que c'est?</h2>
       </div>
 
       <div className="top-section">
@@ -29,10 +29,10 @@ const MboaEventsAbout = () => {
         >
           <div className="events-content">
             <div className="text">
-              <img src={ico} />
-              <h3>Tout l’univers des <br/>événements en un clic</h3>
+              <img src={ico} alt="Icon" />
+              <h3>Tout l'univers des <br/>événements en un clic</h3>
               <p>
-              Découvre, organise et vis tous les événements qui comptent autour de toi. Qu’ils soient festifs, éducatifs, artistique, utiles pour la santé, on regroupe tout au même endroit.
+              Découvre, organise et vis tous les événements qui comptent autour de toi. Qu'ils soient festifs, éducatifs, artistique, utiles pour la santé, on regroupe tout au même endroit.
               </p>
             </div>
             <img
@@ -51,7 +51,7 @@ const MboaEventsAbout = () => {
           viewport={{ once: true }}
         >
           <h3>Notre Vision</h3>
-          <p>Faire de chaque évènement une expérience partagée, et de chaque utilisateur un acteur de la vie. L’application aspire à devenir le carrefour numérique de la culture, de la santé, de la formation et du lifestyle. Un outil complet pour vivre, découvrir et connecter.</p>
+          <p>Faire de chaque évènement une expérience partagée, et de chaque utilisateur un acteur de la vie. L'application aspire à devenir le carrefour numérique de la culture, de la santé, de la formation et du lifestyle. Un outil complet pour vivre, découvrir et connecter.</p>
           <button className="contact-btn">
             Contact <span className="arrow">→</span>
           </button>
@@ -82,7 +82,7 @@ const MboaEventsAbout = () => {
         >
           <div className="community-content">
             <div className="text">
-              <img src={user} />
+              <img src={user} alt="User" />
               <h3>Communauté</h3>
               <p>Retrouve des amis, construis, partage et profite de tes passions et événements préférés grâce à notre système de communauté intégré. </p>
             </div>

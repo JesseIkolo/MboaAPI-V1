@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Users, Building2, TrendingUp, Activity, Clock, ListChecks } from 'lucide-react';
+import {  Users, TrendingUp, Clock } from 'lucide-react';
 import { config } from '../../config/env';
 import WaitlistPage from './WaitlistPage';
 import DashboardStats from '../../components/admin/DashboardStats';
@@ -71,28 +71,6 @@ const DashboardPage = () => {
             setError(err.message);
         } finally {
             setLoading(false);
-        }
-    };
-
-    const handleWaitlistAction = async (userId, action) => {
-        try {
-            const token = localStorage.getItem('token');
-            if (!token) throw new Error('Token non trouvé');
-
-            const response = await fetch(`${config.API_URL}/api/admin/waitlist/${userId}/${action}`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) throw new Error('Erreur lors de la mise à jour du statut');
-            
-            // Rafraîchir les statistiques
-            fetchDashboardStats();
-        } catch (err) {
-            setError(err.message);
         }
     };
 
