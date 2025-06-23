@@ -1,5 +1,12 @@
+# Mac system files
+._DS_Store
 
-*._*
+# Mac system files
+.DS_Store
+
+# React build output
+build/
+
 # Node modules
 node_modules/
 
