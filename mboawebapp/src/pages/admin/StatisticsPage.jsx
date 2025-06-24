@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DashboardStats from '../../components/admin/DashboardStats';
-import { config } from '../../config/env';
+import config from '../../config/env';
 
 const StatisticsPage = () => {
     const [stats, setStats] = useState({

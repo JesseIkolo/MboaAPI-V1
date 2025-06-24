@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Calendar, MapPin, Users, MessageSquare, Heart, Edit2, Trash2, AlertCircle } from 'lucide-react';
-import { config } from '../../config/env';
+import config from '../../config/env';
 
 const EventDetails = ({ event, onEventUpdated, onEventStatusUpdate }) => {
     const [isEditing, setIsEditing] = useState(false);

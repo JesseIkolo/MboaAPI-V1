@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNotification } from '../../contexts/NotificationContext';
-import { config } from '../../config/env';
+import config from '../../config/env';
 
 const WaitingList = () => {
   const [formData, setFormData] = useState({

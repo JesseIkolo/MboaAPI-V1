@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {  Users, TrendingUp, Clock } from 'lucide-react';
-import { config } from '../../config/env';
+import config from '../../config/env';
 import WaitlistPage from './WaitlistPage';
 import DashboardStats from '../../components/admin/DashboardStats';
 
