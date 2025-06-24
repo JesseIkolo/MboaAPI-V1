@@ -1,6 +1,6 @@
-const API_URL = process.env.API_URL;
+const API_URL = process.env.REACT_APP_API_URL;
 
-export default {
+const config = {
   API_URL,
   AUTH_ENDPOINTS: {
     LOGIN: '/api/users/login',
@@ -14,22 +14,19 @@ export default {
   }
 };
 
+export default config;
+
 // Fonction utilitaire pour vérifier si toutes les variables d'environnement requises sont définies
-export const validateEnv = () => {
-  const requiredEnvVars = ['REACT_APP_API_URL'];
-  const missingEnvVars = requiredEnvVars.filter(
-    (envVar) => !process.env[envVar]
+const requiredEnvVars = ['REACT_APP_API_URL'];
+const missingEnvVars = requiredEnvVars.filter(
+  (envVar) => !process.env[envVar]
+);
+
+if (missingEnvVars.length > 0) {
+  console.warn(
+    `Warning: Missing environment variables: ${missingEnvVars.join(', ')}`
   );
-
-  if (missingEnvVars.length > 0) {
-    console.warn(
-      `Warning: Missing environment variables: ${missingEnvVars.join(', ')}`
-    );
-    return false;
-  }
-
-  return true;
-};
+}
 
 // Configuration du Super Admin
 export const SUPER_ADMIN = {
