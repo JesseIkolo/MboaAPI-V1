@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, User, Mail, Phone } from 'lucide-react';
-import { config } from '../../config/env';
+import config from '../../config/env';
 import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../../contexts/NotificationContext';
 import PasswordStrengthIndicator from '../../components/passwordstrengthindicator';

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
-import { config } from '../../config/env';
+import config from '../../config/env';
 
 const OTPValidation = ({ onVerify }) => {
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
