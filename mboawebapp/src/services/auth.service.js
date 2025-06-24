@@ -1,6 +1,7 @@
 import axios from 'axios';
+import config from '../config/env';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:2103';
+const API_URL = config.API_URL;
 
 class AuthService {
     static async getCurrentUser() {

@@ -1,7 +1,8 @@
 import axios from 'axios';
 import AuthService from './auth.service';
+import config from '../config/env';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:2103';
+const API_URL = config.API_URL;
 
 class StatsService {
     static async getDashboardStats() {
@@ -95,4 +96,4 @@ class StatsService {
     }
 }
 
-export default StatsService; 
+export default StatsService;
