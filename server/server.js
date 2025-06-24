@@ -50,7 +50,7 @@ app.use(session({
     }
 }));
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: process.env.CORS_ORIGIN,
     credentials: true
 }));
 app.use(express.json());
@@ -85,6 +85,7 @@ app.use((err, req, res, next) => {
 
 // Configuration du port
 const PORT = process.env.PORT || 2103;
+const API_URL = process.env.API_URL || 'http://localhost';
 
 // Fonction de démarrage du serveur
 const startServer = async () => {
@@ -99,7 +100,7 @@ const startServer = async () => {
         // Démarrage du serveur
         app.listen(PORT, () => {
             console.log(`🚀 Serveur démarré sur le port ${PORT}`);
-            console.log(`📚 Documentation API disponible sur http://localhost:${PORT}/api-docs`);
+            console.log(`📚 Documentation API disponible sur ${process.env.API_URL}:${PORT}/api-docs`);
         });
     } catch (error) {
         console.error('❌ Erreur lors du démarrage du serveur:', error);
