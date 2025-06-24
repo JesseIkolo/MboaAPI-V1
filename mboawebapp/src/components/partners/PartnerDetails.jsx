@@ -14,6 +14,7 @@ import {
     Plus,
     Trash2
 } from 'lucide-react';
+import config from '../../config/env';
 
 const PartnerDetails = ({ partner, onPartnerStatusUpdate, onPartnerUpdated }) => {
     const [activeTab, setActiveTab] = useState('info');
@@ -63,7 +64,7 @@ const PartnerDetails = ({ partner, onPartnerStatusUpdate, onPartnerUpdated }) =>
             const token = localStorage.getItem('token');
             if (!token) throw new Error('Token non trouvé');
 
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/partners/${_id}/users/${userId}`, {
+            const response = await fetch(`${config.API_URL}/api/partners/${_id}/users/${userId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
