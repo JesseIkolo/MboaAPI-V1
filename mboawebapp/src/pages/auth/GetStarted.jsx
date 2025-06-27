@@ -9,7 +9,7 @@ import { useAuth } from '../../contexts/AuthContext'; // Importer useAuth
 
 export default function AuthInterface() {
   const navigate = useNavigate();
-  const { login } = useAuth(); // Utiliser le contexte
+  const { login } = useAuth(); // Utiliser uniquement login
   const { showError, showSuccess, showInfo } = useNotification();
   const [isLogin, setIsLogin] = useState(true);
   const [loginMethod, setLoginMethod] = useState('username'); // 'username', 'email', 'phone'
@@ -76,16 +76,18 @@ export default function AuthInterface() {
 
       showSuccess('Connexion réussie !');
       
-      // La redirection est gérée par PrivateRoute, mais on peut
-      // la forcer ici pour plus de réactivité.
-      if (user.role === 'admin' || user.role === 'superadmin') {
+      // DEBUG LOGS
+      console.log('USER POUR REDIRECTION:', user);
+      console.log('ROLE:', user && user.role);
+      // Redirection sécurisée
+      if (user && (user.role === 'admin' || user.role === 'superadmin')) {
         navigate('/admin', { replace: true });
-      } else {
+      } else if (user) {
         navigate('/', { replace: true });
-      }
+      } // sinon, pas de redirection
 
     } catch (err) {
-      console.error('Erreur de connexion:', err);
+      console.error('Erreur de connexion:', err, err.response?.data);
       const errorData = err.response?.data;
       if (errorData) {
         if (errorData.requiresOTP) {

@@ -26,6 +26,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     const { data } = await api.post('/users/login', credentials);
+    if (data.token) {
+      localStorage.setItem('token', data.token);
+    }
     setUser(data.user);
     // La redirection sera gérée par le composant qui appelle login
     return data.user; 
