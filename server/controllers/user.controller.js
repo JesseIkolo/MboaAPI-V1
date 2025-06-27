@@ -174,6 +174,13 @@ const login = async (req, res) => {
       username: user.username
     };
     
+    // Générer le token JWT
+    const token = jwt.sign(
+      { userId: user._id, role: user.role, adminType: user.adminType },
+      process.env.JWT_SECRET,
+      { expiresIn: '72h' }
+    );
+    
     res.json({ 
       user: {
         _id: user._id,
@@ -186,7 +193,8 @@ const login = async (req, res) => {
         adminType: user.adminType,
         isAdminValidated: user.isAdminValidated || false,
         permissions: user.permissions || []
-      }
+      },
+      token
     });
   } catch (err) {
     console.error('❌ LOGIN ERROR:', err.message || err);
@@ -424,14 +432,13 @@ const unfollowUser = async (req, res) => {
 
 const getCurrentUser = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select('-password');
-    if (!user) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé' });
-    }
+    // Utilise userId du JWT si présent, sinon _id de la session
+    const userId = req.user.userId || req.user._id;
+    const user = await User.findById(userId).select('-password');
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé' });
     res.json(user);
   } catch (error) {
-    console.error('Erreur dans getCurrentUser:', error.message);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Erreur serveur' });
   }
 };
 

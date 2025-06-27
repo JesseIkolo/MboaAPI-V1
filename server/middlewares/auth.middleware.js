@@ -8,11 +8,24 @@ const authMiddleware = async (req, res, next) => {
   if (req.session && req.session.user) {
     // L'utilisateur est authentifié via la session
     req.user = req.session.user;
-    next();
-  } else {
-    // Aucune session trouvée
-    res.status(401).json({ message: 'Non authentifié. Veuillez vous connecter.' });
+    return next();
   }
+
+  // Auth via JWT
+  const authHeader = req.headers['authorization'];
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1];
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = decoded;
+      return next();
+    } catch (err) {
+      return res.status(401).json({ message: 'Token invalide ou expiré' });
+    }
+  }
+
+  // Sinon, non authentifié
+  res.status(401).json({ message: 'Non authentifié. Veuillez vous connecter.' });
 };
 
 const adminMiddleware = (req, res, next) => {

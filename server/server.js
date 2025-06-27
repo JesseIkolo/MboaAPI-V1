@@ -49,10 +49,26 @@ app.use(session({
         maxAge: 1000 * 60 * 60 * 24 // 1 jour
     }
 }));
+
+console.log("Les cors sont activées pour :",process.env.CORS_ORIGIN);
+
+
+const allowedOrigins = process.env.CORS_ORIGIN.split(',');
 app.use(cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: function(origin, callback){
+        // autorise les requêtes sans origin (comme Postman)
+        if(!origin) return callback(null, true);
+        if(allowedOrigins.indexOf(origin) !== -1){
+            return callback(null, true);
+        } else {
+            return callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 }));
+
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -85,7 +101,6 @@ app.use((err, req, res, next) => {
 
 // Configuration du port
 const PORT = process.env.PORT || 2103;
-const API_URL = process.env.API_URL || 'http://localhost';
 
 // Fonction de démarrage du serveur
 const startServer = async () => {
@@ -100,7 +115,7 @@ const startServer = async () => {
         // Démarrage du serveur
         app.listen(PORT, () => {
             console.log(`🚀 Serveur démarré sur le port ${PORT}`);
-            console.log(`📚 Documentation API disponible sur ${process.env.API_URL}:${PORT}/api-docs`);
+            console.log(`📚 Documentation API disponible sur http://localhost:${PORT}/api-docs`);
         });
     } catch (error) {
         console.error('❌ Erreur lors du démarrage du serveur:', error);

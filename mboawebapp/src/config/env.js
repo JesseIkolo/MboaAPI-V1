@@ -17,16 +17,16 @@ const config = {
 export default config;
 
 // Fonction utilitaire pour vérifier si toutes les variables d'environnement requises sont définies
-const requiredEnvVars = ['REACT_APP_API_URL'];
-const missingEnvVars = requiredEnvVars.filter(
-  (envVar) => !process.env[envVar]
-);
-
-if (missingEnvVars.length > 0) {
-  console.warn(
-    `Warning: Missing environment variables: ${missingEnvVars.join(', ')}`
+  const requiredEnvVars = ['REACT_APP_API_URL'];
+  const missingEnvVars = requiredEnvVars.filter(
+    (envVar) => !process.env[envVar]
   );
-}
+
+  if (missingEnvVars.length > 0) {
+    console.warn(
+      `Warning: Missing environment variables: ${missingEnvVars.join(', ')}`
+    );
+  }
 
 // Configuration du Super Admin
 export const SUPER_ADMIN = {
