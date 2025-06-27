@@ -57,18 +57,18 @@ const StatisticsPage = () => {
 
     console.log('STATS POUR DASHBOARDSTATS', stats, loading, error);
 
-    return (
-        <div className="p-8">
-            <h1 className="text-2xl font-bold text-gray-800 mb-6">Statistiques Détaillées</h1>
+  return (
+    <div className="p-8">
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">Statistiques Détaillées</h1>
             <DashboardStats stats={stats} loading={loading} error={error} />
-            <div className="mt-8 bg-white p-6 rounded-lg shadow">
-                <h2 className="text-xl font-semibold text-gray-700">Graphique de croissance des utilisateurs</h2>
-                <div className="mt-4 h-64 bg-gray-200 rounded-md flex items-center justify-center animate-pulse">
-                    <p className="text-gray-500">Graphique à venir...</p>
-                </div>
-            </div>
-        </div>
-    );
+      <div className="mt-8 bg-white p-6 rounded-lg shadow">
+          <h2 className="text-xl font-semibold text-gray-700">Graphique de croissance des utilisateurs</h2>
+          <div className="mt-4 h-64 bg-gray-200 rounded-md flex items-center justify-center animate-pulse">
+              <p className="text-gray-500">Graphique à venir...</p>
+          </div>
+      </div>
+    </div>
+  );
 };
 
 export default StatisticsPage; 

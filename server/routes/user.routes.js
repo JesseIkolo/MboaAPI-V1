@@ -31,7 +31,10 @@ router.post('/reset-password', resetPassword);
 router.get('/verify-email', verifyEmail);
 
 // --- Routes protégées ---
-router.get('/me', authMiddleware, getCurrentUser);
+router.get('/me', authMiddleware, (req, res) => {
+  console.log('ROUTE /me appelée, req.user =', req.user);
+  getCurrentUser(req, res);
+});
 router.get('/', authMiddleware, getAllUsers);
 router.get('/:id', authMiddleware, getUserById);
 router.put('/:id', authMiddleware, updateUser);

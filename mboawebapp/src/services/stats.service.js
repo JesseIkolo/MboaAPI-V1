@@ -96,4 +96,4 @@ class StatsService {
     }
 }
 
-export default StatsService;
+export default StatsService; 
