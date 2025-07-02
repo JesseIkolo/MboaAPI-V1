@@ -2,6 +2,8 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const User = require('../models/user.model');
+const { PERMISSIONS, ADMIN_ROLES } = require('../models/user.model');
 
 // Vérification des variables d'environnement
 if (!process.env.MONGODB_URI) {
@@ -48,12 +50,12 @@ async function secureHash(password) {
 // Données des super administrateurs
 const superAdmins = [
     {
-        username: process.env.SUPER_ADMIN_USERNAME,
-        email: process.env.SUPER_ADMIN_EMAIL,
-        phone: process.env.SUPER_ADMIN_PHONE,
-        password: process.env.SUPER_ADMIN_PASSWORD,
-        firstName: process.env.SUPER_ADMIN_FIRSTNAME,
-        lastName: process.env.SUPER_ADMIN_LASTNAME
+        username: "superadmin1",
+        email: "admin1@mboaevents.com",
+        phone: "+237600000000",
+        password: "SuperAdmin1@123",
+        firstName: "Super1",
+        lastName: "Admin1"
     },
     {
         username: "superadmin2",
@@ -62,6 +64,14 @@ const superAdmins = [
         password: "SuperAdmin2@123",
         firstName: "Super2",
         lastName: "Admin2"
+    },
+    {
+        username: "superadmin3",
+        email: "admin3@mboaevents.com",
+        phone: "+237600000002",
+        password: "SuperAdmin3@123",
+        firstName: "Super3",
+        lastName: "Admin3"
     }
 ];
 
@@ -70,19 +80,29 @@ async function createSuperAdmins() {
     try {
         for (const adminData of superAdmins) {
             // Vérifier si l'admin existe déjà
-            const existingAdmin = await SuperAdmin.findOne({ email: adminData.email });
+            const existingAdmin = await User.findOne({ email: adminData.email });
             if (existingAdmin) {
                 console.log(`Super Admin existe déjà : ${adminData.email}`);
                 continue;
             }
 
             // Hasher le mot de passe de manière sécurisée
-            const hashedPassword = await secureHash(adminData.password);
-            
-            // Créer le super admin avec le mot de passe hashé
-            const superAdmin = new SuperAdmin({
+            const hashedPassword = await bcrypt.hash(adminData.password, 10);
+
+            // Créer le super admin avec toutes les permissions
+            const superAdmin = new User({
                 ...adminData,
-                password: hashedPassword
+                password: hashedPassword,
+                role: 'superadmin',
+                adminType: 'superadmin',
+                isVerified: true,
+                status: 'active',
+                isActive: true,
+                emailVerified: true,
+                phoneVerified: true,
+                accountVerified: true,
+                isAdminValidated: true,
+                permissions: Object.values(PERMISSIONS)
             });
 
             // Sauvegarder dans la base de données

@@ -8,6 +8,10 @@ const OTPValidation = ({ onVerify }) => {
     const [timeLeft, setTimeLeft] = useState(300); // 5 minutes in seconds
     const inputRefs = useRef([]);
 
+    // Récupérer le contact (email/phone) depuis le localStorage
+    const userContact = JSON.parse(localStorage.getItem('userContact') || '{}');
+    const contactLabel = userContact.email ? userContact.email : userContact.phone;
+
     // Timer effect
     useEffect(() => {
         if (timeLeft > 0) {
@@ -66,21 +70,17 @@ const OTPValidation = ({ onVerify }) => {
     const handleResendOTP = async () => {
         try {
             setLoading(true);
-            const email = localStorage.getItem('userEmail');
-
-            if (!email) {
-                throw new Error('Email non trouvé. Veuillez vous réinscrire.');
+            if (!userContact.email && !userContact.phone) {
+                throw new Error('Aucun contact trouvé. Veuillez vous réinscrire.');
             }
 
-            console.log('Envoi de la requête de renvoi OTP à:', `${config.API_URL}${config.AUTH_ENDPOINTS.RESEND_OTP}`);
-            
             const response = await fetch(`${config.API_URL}${config.AUTH_ENDPOINTS.RESEND_OTP}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify({ email })
+                body: JSON.stringify(userContact)
             });
 
             console.log('Réponse reçue:', response.status);
@@ -128,7 +128,7 @@ const OTPValidation = ({ onVerify }) => {
 
         try {
             setLoading(true);
-            await onVerify(otpString);
+            await onVerify({ ...userContact, otp: otpString });
         } catch (error) {
             console.error('Erreur lors de la validation OTP:', error);
             toast.error(error.message || 'Erreur lors de la validation du code');
@@ -147,7 +147,7 @@ const OTPValidation = ({ onVerify }) => {
                     Entrez le code à 6 chiffres envoyé à votre email
                 </p>
                 <p className="mt-1 text-center text-sm text-gray-500">
-                    {localStorage.getItem('userEmail')}
+                    {contactLabel}
                 </p>
             </div>
 

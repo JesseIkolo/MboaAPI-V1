@@ -3,6 +3,25 @@
 const crypto = require('crypto');
 const User = require('../models/user.model');
 const EmailService = require('./email.service');
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const twilioClient = require('twilio')(accountSid, authToken);
+const TWILIO_FROM = process.env.TWILIO_FROM;
+
+async function sendOTPBySMS(phone, otp) {
+    try {
+        const message = await twilioClient.messages.create({
+            from: TWILIO_FROM,
+            to: phone,
+            body: `Votre code OTP MBOA Events : ${otp}`
+        });
+        console.log('✅ OTP envoyé par SMS via Twilio, SID:', message.sid);
+        return true;
+    } catch (error) {
+        console.error('Erreur lors de l\'envoi de l\'OTP par SMS Twilio:', error);
+        throw new Error('Erreur lors de l\'envoi de l\'OTP par SMS');
+    }
+}
 
 class OTPService {
     /**
@@ -15,12 +34,15 @@ class OTPService {
 
     /**
      * Crée et envoie un nouveau code OTP
-     * @param {string} email - Email de l'utilisateur
+     * @param {object} params - { email, phone }
      * @returns {Promise<boolean>} Succès de l'opération
      */
-    static async createAndSendOTP(email) {
+    static async createAndSendOTP({ email, phone }) {
         try {
-            const user = await User.findOne({ email });
+            const user = await User.findOne({ $or: [
+                email ? { email } : {},
+                phone ? { phone } : {}
+            ] });
             if (!user) {
                 throw new Error('Utilisateur non trouvé');
             }
@@ -43,8 +65,14 @@ class OTPService {
             };
             await user.save();
 
-            // Envoyer l'OTP par email
-            await EmailService.sendOTPByEmail(email, otp);
+            // Envoyer l'OTP par SMS si téléphone, sinon par email
+            if (user.phone) {
+                await sendOTPBySMS(user.phone, otp);
+            } else if (user.email) {
+                await EmailService.sendOTPByEmail(user.email, otp);
+            } else {
+                throw new Error('Aucun canal de contact disponible pour envoyer l\'OTP');
+            }
 
             return true;
         } catch (error) {
@@ -55,13 +83,15 @@ class OTPService {
 
     /**
      * Vérifie un code OTP
-     * @param {string} email - Email de l'utilisateur
-     * @param {string} otp - Code OTP à vérifier
+     * @param {object} params - { email, phone, otp }
      * @returns {Promise<boolean>} Succès de la vérification
      */
-    static async verifyOTP(email, otp) {
+    static async verifyOTP({ email, phone, otp }) {
         try {
-            const user = await User.findOne({ email });
+            const user = await User.findOne({ $or: [
+                email ? { email } : {},
+                phone ? { phone } : {}
+            ] });
             if (!user || !user.otpData) {
                 throw new Error('Code OTP non trouvé ou expiré');
             }
@@ -87,8 +117,9 @@ class OTPService {
                 throw new Error('Code OTP invalide');
             }
 
-            // OTP valide : marquer l'email comme vérifié et supprimer l'OTP
-            user.isEmailVerified = true;
+            // OTP valide : marquer l'email ou le téléphone comme vérifié et supprimer l'OTP
+            if (email) user.isEmailVerified = true;
+            if (phone) user.isPhoneVerified = true;
             user.otpData = undefined;
             await user.save();
 
@@ -101,12 +132,15 @@ class OTPService {
 
     /**
      * Renvoie un nouveau code OTP
-     * @param {string} email - Email de l'utilisateur
+     * @param {object} params - { email, phone }
      * @returns {Promise<boolean>} Succès de l'opération
      */
-    static async resendOTP(email) {
+    static async resendOTP({ email, phone }) {
         try {
-            const user = await User.findOne({ email });
+            const user = await User.findOne({ $or: [
+                email ? { email } : {},
+                phone ? { phone } : {}
+            ] });
             if (!user) {
                 throw new Error('Utilisateur non trouvé');
             }
@@ -117,7 +151,7 @@ class OTPService {
                 throw new Error(`Veuillez attendre ${timeLeft} secondes avant de demander un nouveau code`);
             }
 
-            return await this.createAndSendOTP(email);
+            return await this.createAndSendOTP({ email, phone });
         } catch (error) {
             console.error('Erreur lors du renvoi OTP:', error);
             throw error;

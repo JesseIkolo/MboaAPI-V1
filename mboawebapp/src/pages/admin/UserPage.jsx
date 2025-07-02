@@ -12,7 +12,6 @@ const UserPage = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [filters, setFilters] = useState({
         status: 'all',
-        role: 'all',
         reportStatus: 'all'
     });
 
@@ -24,7 +23,9 @@ const UserPage = () => {
         try {
             setLoading(true);
             const response = await api.get('/users');
-            setUsers(response.data);
+            // Filtrer pour ne garder que les utilisateurs (pas les admins)
+            const regularUsers = response.data.filter(user => user.role === 'user');
+            setUsers(regularUsers);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -69,11 +70,10 @@ const UserPage = () => {
             user.username?.toLowerCase().includes(searchQuery.toLowerCase());
 
         const matchesStatus = filters.status === 'all' || user.status === filters.status;
-        const matchesRole = filters.role === 'all' || user.role === filters.role;
         const matchesReportStatus = filters.reportStatus === 'all' || 
             (filters.reportStatus === 'reported' ? user.reports?.length > 0 : user.reports?.length === 0);
 
-        return matchesSearch && matchesStatus && matchesRole && matchesReportStatus;
+        return matchesSearch && matchesStatus && matchesReportStatus;
     });
 
     return (
@@ -120,17 +120,6 @@ const UserPage = () => {
                                 <option value="active">Actif</option>
                                 <option value="blocked">Bloqué</option>
                                 <option value="pending">En attente</option>
-                            </select>
-
-                            <select
-                                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                value={filters.role}
-                                onChange={(e) => handleFilterChange('role', e.target.value)}
-                            >
-                                <option value="all">Tous les rôles</option>
-                                <option value="user">Utilisateur</option>
-                                <option value="admin">Administrateur</option>
-                                <option value="partner">Partenaire</option>
                             </select>
 
                             <select

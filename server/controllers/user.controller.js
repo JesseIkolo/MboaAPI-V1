@@ -10,9 +10,11 @@ const {
   sendOTPBySMS,
   sendOTPByWhatsApp,
   checkWhatsAppNumber,
-  sendWelcomeEmail
+  sendWelcomeEmail,
+  sendUnifiedWelcomeEmail
 } = require('../services/email.service.js');
 const referralController = require('./referral.controller');
+const OTPService = require('../services/otp.service');
 
 function validatePassword(password) {
   const errors = [];
@@ -30,23 +32,58 @@ const generateEmailToken = () => {
 
 const register = async (req, res) => {
   const { username, email, phone, password, firstName, lastName } = req.body;
+  
+  console.log('🚀 DÉBUT REGISTER - Données reçues:', {
+    username,
+    email,
+    phone,
+    firstName,
+    lastName,
+    passwordLength: password?.length
+  });
+  
   try {
+    // Vérification qu'au moins email ou téléphone est présent
+    if (!email && !phone) {
+      return res.status(400).json({ message: 'Veuillez renseigner au moins un email ou un numéro de téléphone.' });
+    }
+
+    console.log('🔍 Validation du mot de passe...');
     const passwordIssues = validatePassword(password);
     if (passwordIssues.length > 0) {
+      console.log('❌ Mot de passe invalide:', passwordIssues);
       return res.status(400).json({
         message: "Le mot de passe est trop faible",
         reasons: passwordIssues
       });
     }
+    console.log('✅ Mot de passe valide');
 
+    console.log('🔍 Vérification d\'unicité...');
     const existingUser = await User.findOne({ $or: [{ email }, { phone }, { username }] });
-    if (existingUser) return res.status(400).json({ message: 'Utilisateur existant (email, téléphone ou pseudo).' });
+    if (existingUser) {
+      console.log('❌ Utilisateur existant trouvé:', {
+        existingEmail: existingUser.email,
+        existingPhone: existingUser.phone,
+        existingUsername: existingUser.username
+      });
+      return res.status(400).json({ message: 'Utilisateur existant (email, téléphone ou pseudo).' });
+    }
+    console.log('✅ Aucun utilisateur existant trouvé');
 
+    console.log('🔐 Sécurisation des données...');
     const hashedPassword = await bcrypt.hash(password, 10);
     const otp = generateOTP();
     const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
     const emailToken = generateEmailToken();
+    
+    console.log('✅ Données sécurisées:', {
+      otp,
+      otpExpires,
+      emailTokenLength: emailToken.length
+    });
 
+    console.log('👤 Création de l\'utilisateur...');
     const newUser = new User({
       username,
       email,
@@ -61,27 +98,99 @@ const register = async (req, res) => {
       emailVerified: false
     });
 
+    console.log('💾 Sauvegarde en base de données...');
     await newUser.save();
-    // Association parrainage si code présent (cookie ou body)
-    await referralController.associateReferralOnSignup(newUser, req);
-/* 
-    const isWhatsapp = await checkWhatsAppNumber(phone);
-    if (isWhatsapp) {
-      await sendOTPByWhatsApp(phone, otp);
-    } else {
-      await sendOTPBySMS(phone, otp);
-    }
- */
-    await sendOTPByEmail(email, otp);
-    await sendWelcomeEmail(email, `${firstName} ${lastName}`);
-    await sendEmailValidation(email, emailToken);
+    console.log('✅ Utilisateur sauvegardé avec ID:', newUser._id);
 
-    res.status(201).json({ 
-      message: 'Inscription réussie. Veuillez vérifier votre email pour le code OTP et le lien de validation.',
-      userId: newUser._id 
+    console.log('🎯 Association parrainage...');
+    try {
+      await referralController.associateReferralOnSignup(newUser, req);
+      console.log('✅ Parrainage associé (ou aucun parrainage)');
+    } catch (referralError) {
+      console.log('⚠️ Erreur parrainage (non bloquante):', referralError.message);
+    }
+
+    // Envoi OTP par SMS ou email
+    let otpSent = false;
+    let smsError = null;
+    let emailError = null;
+    let otpChannel = null;
+    if (phone && email) {
+      // Essayer SMS d'abord
+      try {
+        await OTPService.createAndSendOTP({ phone });
+        otpSent = true;
+        otpChannel = 'sms';
+        console.log('✅ OTP envoyé par SMS');
+      } catch (err) {
+        smsError = err;
+        // Essayer email si SMS échoue
+        try {
+          await OTPService.createAndSendOTP({ email });
+          otpSent = true;
+          otpChannel = 'email';
+          console.log('✅ OTP envoyé par email (après échec SMS)');
+        } catch (err2) {
+          emailError = err2;
+        }
+      }
+    } else if (phone) {
+      try {
+        await OTPService.createAndSendOTP({ phone });
+        otpSent = true;
+        otpChannel = 'sms';
+        console.log('✅ OTP envoyé par SMS');
+      } catch (err) {
+        smsError = err;
+      }
+    } else if (email) {
+      try {
+        await OTPService.createAndSendOTP({ email });
+        otpSent = true;
+        otpChannel = 'email';
+        console.log('✅ OTP envoyé par email');
+      } catch (err) {
+        emailError = err;
+      }
+    }
+    if (!otpSent) {
+      return res.status(500).json({ message: "Impossible d'envoyer le code OTP par SMS ou email. Veuillez réessayer ou contacter le support." });
+    }
+
+    // Envoi d'un seul email de bienvenue avec OTP et lien de validation
+    if (email) {
+      try {
+        await sendUnifiedWelcomeEmail(email, {
+          firstName,
+          lastName,
+          otp,
+          emailToken
+        });
+        console.log('✅ Email de bienvenue/OTP/validation envoyé');
+      } catch (welcomeError) {
+        console.error('❌ Erreur envoi email de bienvenue/OTP/validation:', welcomeError.message);
+        // Ne pas bloquer l'inscription pour cette erreur
+      }
+    }
+
+    console.log('✅ REGISTER TERMINÉ AVEC SUCCÈS');
+    res.status(201).json({
+      message: 'Inscription réussie',
+      user: {
+        _id: newUser._id,
+        email: newUser.email,
+        phone: newUser.phone,
+        isVerified: newUser.isVerified
+      },
+      otpChannel
     });
   } catch (err) {
-    console.error('❌ REGISTER ERROR:', err.message || err);
+    console.error('❌ REGISTER ERROR:', {
+      message: err.message,
+      stack: err.stack,
+      name: err.name,
+      code: err.code
+    });
     res.status(500).json({ message: "Erreur serveur à l'inscription" });
   }
 };
@@ -499,15 +608,75 @@ const createSuperUser = async (req, res) => {
   }
 };
 
-const logout = (req, res) => {
-  req.session.destroy(err => {
-    if (err) {
-      return res.status(500).json({ message: 'Impossible de se déconnecter' });
+const logout = async (req, res) => {
+  try {
+    // Ajouter le token JWT à la blacklist si présent
+    const token = req.headers.authorization?.split(' ')[1];
+    if (token) {
+      const tokenBlacklistService = require('../services/tokenBlacklist.service');
+      await tokenBlacklistService.blacklistToken(token);
     }
-    // Le nom du cookie est souvent 'connect.sid' par défaut
-    res.clearCookie('connect.sid'); 
-    res.status(200).json({ message: 'Déconnexion réussie' });
-  });
+
+    // Détruire la session
+    req.session.destroy(err => {
+      if (err) {
+        console.error('Erreur lors de la destruction de la session:', err);
+        return res.status(500).json({ message: 'Impossible de se déconnecter' });
+      }
+      
+      // Supprimer le cookie de session
+      res.clearCookie('connect.sid');
+      
+      // Supprimer d'autres cookies potentiels
+      res.clearCookie('sessionId');
+      res.clearCookie('authToken');
+      
+      res.status(200).json({ message: 'Déconnexion réussie' });
+    });
+  } catch (error) {
+    console.error('Erreur lors de la déconnexion:', error);
+    res.status(500).json({ message: 'Erreur lors de la déconnexion' });
+  }
+};
+
+const blockUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    if (user.accountLocked) return res.status(400).json({ message: 'Utilisateur déjà bloqué' });
+    user.accountLocked = true;
+    user.lockUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Bloqué 30 jours par défaut
+    await user.save();
+    res.json({ message: 'Utilisateur bloqué avec succès', userId });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors du blocage de l\'utilisateur' });
+  }
+};
+
+const unblockUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    if (!user.accountLocked) return res.status(400).json({ message: 'Utilisateur non bloqué' });
+    user.accountLocked = false;
+    user.lockUntil = null;
+    await user.save();
+    res.json({ message: 'Utilisateur débloqué avec succès', userId });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors du déblocage de l\'utilisateur' });
+  }
+};
+
+const sendConfirmation = async (req, res) => {
+  try {
+    const { email } = req.body;
+    await sendEmailValidation(email, 'confirmation');
+    res.json({ message: 'Email de confirmation envoyé' });
+  } catch (error) {
+    res.status(500).json({ message: "Erreur lors de l'envoi de l'email de confirmation" });
+  }
 };
 
 module.exports = {
@@ -525,5 +694,8 @@ module.exports = {
   unfollowUser,
   getCurrentUser,
   createSuperUser,
-  logout
+  logout,
+  blockUser,
+  unblockUser,
+  sendConfirmation
 };

@@ -163,6 +163,56 @@ const AdminManagement = () => {
         }
     };
 
+    // Bloquer un administrateur
+    const handleBlockAdmin = async (admin) => {
+        try {
+            setLoading(true);
+            const response = await fetch(`${config.API_URL}/api/users/block/${admin._id}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            if (response.ok) {
+                message.success('Administrateur bloqué avec succès');
+                fetchAdmins();
+                fetchPendingAdmins();
+            } else {
+                const error = await response.json();
+                message.error(error.message);
+            }
+        } catch (error) {
+            message.error('Erreur lors du blocage de l\'administrateur');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Débloquer un administrateur
+    const handleUnblockAdmin = async (admin) => {
+        try {
+            setLoading(true);
+            const response = await fetch(`${config.API_URL}/api/users/unblock/${admin._id}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            if (response.ok) {
+                message.success('Administrateur débloqué avec succès');
+                fetchAdmins();
+                fetchPendingAdmins();
+            } else {
+                const error = await response.json();
+                message.error(error.message);
+            }
+        } catch (error) {
+            message.error('Erreur lors du déblocage de l\'administrateur');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // Colonnes pour la table des administrateurs
     const columns = [
         {
@@ -196,6 +246,17 @@ const AdminManagement = () => {
                     status={record.isAdminValidated ? 'success' : 'warning'} 
                     text={record.isAdminValidated ? 'Validé' : 'En attente'}
                 />
+            )
+        },
+        {
+            title: 'Blocage',
+            key: 'block',
+            render: (_, record) => (
+                record.accountLocked ? (
+                    <Badge status="error" text="Bloqué" />
+                ) : (
+                    <Badge status="success" text="Actif" />
+                )
             )
         },
         {
@@ -234,6 +295,15 @@ const AdminManagement = () => {
                             >
                                 Révoquer
                             </Button>
+                            {!record.accountLocked ? (
+                                <Button danger onClick={() => handleBlockAdmin(record)}>
+                                    Bloquer
+                                </Button>
+                            ) : (
+                                <Button type="primary" onClick={() => handleUnblockAdmin(record)}>
+                                    Débloquer
+                                </Button>
+                            )}
                         </>
                     )}
                 </div>

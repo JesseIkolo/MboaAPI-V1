@@ -23,7 +23,7 @@ class AuthService {
         const token = localStorage.getItem('token');
         if (token) {
             try {
-                await axios.post(`${API_URL}/api/auth/logout`, {}, {
+                await axios.post(`${API_URL}/api/users/logout`, {}, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
             } catch (error) {

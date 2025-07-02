@@ -12,7 +12,11 @@ const PERMISSIONS = {
     MANAGE_CHATS: 'manage_chats',
     MANAGE_TRANSACTIONS: 'manage_transactions',
     MANAGE_CATEGORIES: 'manage_categories',
-    VALIDATE_ADMINS: 'validate_admins'
+    VALIDATE_ADMINS: 'validate_admins',
+    MANAGE_BUSINESS: 'manage_business',
+    MANAGE_REFERRALS: 'manage_referrals',
+    MANAGE_REWARDS: 'manage_rewards',
+    MANAGE_ADMINS: 'manage_admins'
 };
 
 // Définition des rôles et leurs permissions par défaut
@@ -46,7 +50,7 @@ const DEFAULT_PERMISSIONS = {
 const userSchema = new Schema({
     email: {
         type: String,
-        required: true,
+        required: false,
         unique: true,
         trim: true,
         lowercase: true
@@ -73,7 +77,7 @@ const userSchema = new Schema({
     },
     phone: {
         type: String,
-        required: true,
+        required: false,
         unique: true,
         trim: true
     },
@@ -220,6 +224,15 @@ userSchema.pre('save', async function(next) {
 userSchema.methods.comparePassword = async function(candidatePassword) {
     return bcrypt.compare(candidatePassword, this.password);
 };
+
+// Validation personnalisée : au moins email ou phone doit être présent
+userSchema.pre('validate', function(next) {
+    if (!this.email && !this.phone) {
+        this.invalidate('email', 'Au moins un email ou un numéro de téléphone est requis.');
+        this.invalidate('phone', 'Au moins un email ou un numéro de téléphone est requis.');
+    }
+    next();
+});
 
 // Créer et exporter le modèle
 const User = mongoose.model('User', userSchema);

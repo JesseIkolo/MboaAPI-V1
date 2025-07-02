@@ -232,6 +232,11 @@ export default function AuthInterface() {
         showError('Les mots de passe ne correspondent pas');
         return;
       }
+      // Validation : au moins un des deux champs doit être renseigné
+      if (!registerData.email && !registerData.phone) {
+        showError('Veuillez renseigner au moins un email ou un numéro de téléphone.');
+        return;
+      }
 
       setError('');
       setIsLoading(true);
@@ -241,28 +246,40 @@ export default function AuthInterface() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          username: registerData.username,
-          email: registerData.email,
-          phone: registerData.phone,
-          password: registerData.password,
-          firstName: registerData.firstName,
-          lastName: registerData.lastName,
-          role: registerData.adminType
-        }),
+        body: JSON.stringify(registerData),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Erreur lors de l\'inscription');
+        // Gestion d'erreur OTP SMS
+        if (
+          data.message?.toLowerCase().includes('otp') ||
+          data.message?.toLowerCase().includes('sms') ||
+          response.status === 500
+        ) {
+          showError("Notre service de verification OTP via SMS rencontre des soucis. Si ce probleme persiste, demandez de l'aide en envoyant une message à l'adresse wa.me/237695707878");
+          setCurrentStep('otp'); // Redirige vers la page OTP même en cas d'échec SMS
+          return;
+        }
+        showError(data.message || 'Erreur lors de l\'inscription');
+        return;
       }
 
-      // Stocker l'email pour la validation OTP
-      localStorage.setItem('userEmail', registerData.email);
+      // Stocker l'email ou le téléphone pour la validation OTP
+      localStorage.setItem('userContact', JSON.stringify({
+        email: registerData.email,
+        phone: registerData.phone
+      }));
       
-      // Afficher un message de succès et passer à l'étape OTP
-      showSuccess('Inscription réussie! Veuillez vérifier votre email pour le code OTP.');
+      // Afficher un message de succès personnalisé selon le canal OTP
+      if (data.otpChannel === 'sms') {
+        showSuccess('Inscription réussie! Vérifiez votre SMS pour le code OTP.');
+      } else if (data.otpChannel === 'email') {
+        showSuccess('Inscription réussie! Vérifiez votre email pour le code OTP.');
+      } else {
+        showSuccess('Inscription réussie! Vérifiez votre email ou SMS pour le code OTP.');
+      }
       setCurrentStep('otp');
 
     } catch (err) {
@@ -542,7 +559,7 @@ export default function AuthInterface() {
                 {/* Email */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Adresse Email
+                    Adresse Email <span className="text-xs text-gray-500">(au moins un des deux requis)</span>
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
@@ -561,7 +578,7 @@ export default function AuthInterface() {
                 {/* Téléphone */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Numéro de Téléphone
+                    Numéro de Téléphone <span className="text-xs text-gray-500">(au moins un des deux requis)</span>
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">

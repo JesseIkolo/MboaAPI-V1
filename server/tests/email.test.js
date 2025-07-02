@@ -1,5 +1,6 @@
 const { testEmailConfiguration } = require('../services/email.service');
 require('dotenv').config();
+const nodemailer = require('nodemailer');
 
 // Fonction principale de test
 async function runEmailTest() {
@@ -15,6 +16,16 @@ async function runEmailTest() {
     const testEmail = process.env.SMTP_USER;
     
     try {
+        const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port: parseInt(process.env.SMTP_PORT),
+            secure: process.env.SMTP_SECURE === 'true',
+            auth: {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS
+            }
+        });
+
         const result = await testEmailConfiguration(testEmail);
         
         if (result.success) {
