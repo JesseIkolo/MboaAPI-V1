@@ -99,13 +99,13 @@ const userSchema = new Schema({
     isVerified: { type: Boolean, default: false },
     role: { 
         type: String, 
-        enum: ['user', ...Object.values(ADMIN_ROLES)], 
+        enum: ['user', 'admin', ...Object.values(ADMIN_ROLES)], 
         default: 'user' 
     },
     adminType: {
         type: String,
         enum: Object.values(ADMIN_ROLES),
-        required: function() { return this.role !== 'user'; }
+        required: false
     },
     permissions: [{
         type: String,
