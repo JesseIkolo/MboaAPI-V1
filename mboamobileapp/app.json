@@ -30,6 +30,8 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "sdkVersion": "53.0.0",
+
     "fonts": [
       {
         "asset": "assets/fonts/Titillium_Web/TitilliumWeb-Regular.ttf",
@@ -45,6 +47,6 @@
         "projectId": "d3af40fe-be03-4852-bff6-52ca53a2cf7e"
       }
     },
-    "owner": "jason_kitio"
+    "owner": "Jesse_Ikolo"
   }
 }
