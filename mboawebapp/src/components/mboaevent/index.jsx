@@ -6,7 +6,7 @@ import lo from "../../assets/lo.png";
 import svg1 from "../../assets/svg1.svg";
 
 const MboaEvents = () => {
-  const [isAppVisible, setIsAppVisible] = useState(false); // used by animation visibility
+  const [setIsAppVisible] = useState(false); // used by animation visibility
   const [animatePhones, setAnimatePhones] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -14,7 +14,7 @@ const MboaEvents = () => {
     // Animation delay to show the app interface
     setTimeout(() => {
       setIsAppVisible(true);
-      isAppVisible = true;
+
     }, 1000);
 
     // Set phone animations
