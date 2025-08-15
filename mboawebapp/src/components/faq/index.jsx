@@ -46,8 +46,7 @@ const FAqQuestion = () => {
         <div className="group">
         <h2 className="faq-title">Foire Aux Questions</h2>
         <p className="faq-description">
-          Lorem ipsum dolor sit amet consectetur. Etiam adipiscing in semper viverra cursus. 
-          Maecenas blandit porttitor dui nunc enim mauris sed nunc.
+          Retrouvez ici les réponses aux questions les plus fréquentes sur Mbo'a Event. Si vous avez d'autres interrogations, n'hésitez pas à nous contacter !
         </p>
         </div>
         

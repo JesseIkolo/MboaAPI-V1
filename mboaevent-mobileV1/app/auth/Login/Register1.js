@@ -5,12 +5,14 @@ import Icon from '../../../assets/ressource/svg/globalIcons';
 import CustomCheckbox from '../../../assets/component/Globals Components/CustomCheckbox';
 import FormInputBlock from '../../../assets/component/Globals Components/FormInputBlock';
 import ConfettiCannon from 'react-native-confetti-cannon';
+import { useAuth } from '../../../contexts/AuthContext';
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 const OTP_LENGTH = 4;
 
 const Register1 = () => {
     const router = useRouter();
+    const { login } = useAuth();
     const [step, setStep] = useState(1);
     const [mode, setMode] = useState('phone'); // 'phone' | 'email' | 'google'
     const [phone, setPhone] = useState('');
@@ -70,7 +72,10 @@ const Register1 = () => {
                 const timer = setTimeout(() => setSuccessTimer(t => t - 1), 1000);
                 return () => clearTimeout(timer);
             } else {
-                router.replace('/(tabs)');
+                (async () => {
+                    await login();
+                    router.replace('/home/topnavigator');
+                })();
             }
         }
     }, [showSuccessScreen, successTimer]);
@@ -183,7 +188,7 @@ const Register1 = () => {
                     value={password}
                     onChangeText={setPassword}
                     onBlur={() => setTouched(t => ({ ...t, password: true }))}
-                    placeholder=""
+                    placeholder="Votre mot de passe"
                     inputStyle={isPasswordValid ? styles.inputValid : (touched.password ? styles.inputError : {})}
                     error={touched.password && !isPasswordValid ? "6 caractères minimum" : ''}
                     touched={touched.password}

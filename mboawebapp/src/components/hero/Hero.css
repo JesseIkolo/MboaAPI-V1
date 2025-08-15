@@ -216,6 +216,7 @@
   overflow: hidden;
   transition: all 0.3s ease;
   z-index: 1;
+  
 }
 
 .contact-btn:before {
@@ -406,7 +407,7 @@ h3 {
   }
 
   .phone-mockup {
-    width: 150px;
+    width: 250px;
   }
   .about-header{
     font-size: 26px;

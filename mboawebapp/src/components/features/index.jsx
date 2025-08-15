@@ -55,9 +55,9 @@ const MboaFeatures = () => {
               <div className="feature-highlight">
                 <div className="highlight-marker"></div>
                 <div className="highlight-content">
-                  <h3 className="feature-title">
-                    Création et partage de vos évènements
-                  </h3>
+                  <h2 className="feature-title">
+                    Créez et partagez vos évènements
+                  </h2>
                   <p className="feature-description">
                     L'utilisateur a la possibilité de créer, personnaliser et
                     partager ses évènements en mode public ou privé afin de
@@ -101,17 +101,17 @@ const MboaFeatures = () => {
             <div className={`phones-container ${isAnimated ? "animated" : ""}`}>
               {/* Left phone image - will be replaced with actual image */}
               <div className="phone-placeholder left-phone">
-                <img src={communaute1} alt="Communaute 1" />
+                <img src={communaute1} />
               </div>
 
               {/* Right phone image - will be replaced with actual image */}
               <div className="phone-placeholder right-phone">
-                <img src={communaute2} alt="Communaute 2" />
+                <img src={communaute2} />
               </div>
             </div>
 
             <div className={`text-content ${isAnimated ? "animated" : ""}`}>
-              <h1>Construction d'une communauté</h1>
+              <h2>Batissez une forte communauté</h2>
               <p>
                 Tout le monde peut bâtir, élargir et animer une communauté
                 d'amis autour de leurs événements marquants et des moments
@@ -170,11 +170,11 @@ const MboaFeatures = () => {
               <div className="feature-highlight">
                 <div className="highlight-marker"></div>
                 <div className="highlight-content">
-                  <h3 className="feature-title">
-                    Naviguation dans le catalogue
-                  </h3>
+                  <h2 className="feature-title">
+                    Creez votre catalogue et attirez des participants
+                  </h2>
                   <p className="feature-description">
-                    Parcours facilement notre catalogue dynamique et découvre
+                    Parcours facilement notre catalogue dynamique et découvrez
                     des coins sympas enjoy ta life
                   </p>
                 </div>
@@ -205,21 +205,21 @@ const MboaFeatures = () => {
             <div className={`phones-container ${isAnimated ? "animated" : ""}`}>
               {/* Left phone image - will be replaced with actual image */}
               <div className="phone-placeholder left-phone">
-                <img src={Abonnement1} alt="Abonnement 1" />
+                <img src={Abonnement1} />
               </div>
 
               {/* Right phone image - will be replaced with actual image */}
               <div className="phone-placeholder right-phone">
-                <img src={Abonnement2} alt="Abonnement 2" />
+                <img src={Abonnement2} />
               </div>
             </div>
 
             <div className={`text-content ${isAnimated ? "animated" : ""}`}>
-              <h1>Visualisation des statistiques</h1>
+              <h2>Visualisez toutes les statistiques de vos événements</h2>
               <p>
                 Consulte en temps réel les vues, participations et interactions
                 sur tes événements. Pilote ta visibilité et améliore ton
-                organisation en un coup d'œil.
+                organisation en un coup d’œil.
               </p>
             </div>
             <div className="highlight-marke"></div>
@@ -233,13 +233,13 @@ const MboaFeatures = () => {
               <div className="feature-highlight">
                 <div className="highlight-marker"></div>
                 <div className="highlight-content">
-                  <h3 className="feature-title">
-                    Souscription à des abonnements
-                  </h3>
+                  <h2 className="feature-title">
+                    Devenez Premium et gerez vos événements comme un pro
+                  </h2>
                   <p className="feature-description">
                     Abonne-toi pour débloquer des fonctionnalités avancées :
                     géolocalisation, personnalisation poussée, analytics
-                    détaillées et plus encore...
+                    détaillées et plus encore...
                   </p>
                 </div>
               </div>
@@ -267,10 +267,10 @@ const MboaFeatures = () => {
         <div className="promo-container">
           <div className="promo-box">
             <div className="promo-text">
-              <h1>Sur Mbo'a Events, tout le monde est invité!</h1>
+              <h1>Sur Mbo’a Events, tout le monde est invité!</h1>
               <p>
-                Notre applaution est 100% Camerounaise et facilite l'accès à
-                l'information pour tous. Elle est maintenant disponible sur
+                Notre applaution est 100% Camerounaise et facilite l’accès à
+                l’information pour tous. Elle est maintenant disponible sur
                 toutes les plateformes de téléchargement. Rejoignez-nous pour ne
                 rien manquer sur tout ce qui se passe au MBOA!
               </p>

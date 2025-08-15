@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "./Faq.css";
-import fomo from "../assets/fomo.png";
-import peru from "../assets/peru.png";
-import john from "../assets/john.png";
-import mo from "../assets/mo.png";
-import yes from "../assets/yes.png";
-import ana from "../assets/ana.png";
-import yo from "../assets/yo.png";
+import fomo from "../../assets/fomo.png";
+import peru from "../../assets/peru.png";
+import john from "../../assets/john.png";
+import mo from "../../assets/mo.png";
+import yes from "../../assets/yes.png";
+import ana from "../../assets/ana.png";
+import yo from "../../assets/yo.png";
 
 const testimonials = [
   {

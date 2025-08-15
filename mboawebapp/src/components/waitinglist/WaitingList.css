@@ -1,3 +1,7 @@
+.waitlist{
+    background-color: #041578;
+}
+
 .waiting-list-section {
     max-width: 90%; /* Changed from 50% for better mobile viewing */
     width: 100%;

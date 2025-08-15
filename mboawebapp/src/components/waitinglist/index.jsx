@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNotification } from '../../contexts/NotificationContext';
 import config from '../../config/env';
+import './WaitingList.css';
 
 const WaitingList = () => {
   const [formData, setFormData] = useState({
@@ -51,7 +52,7 @@ const WaitingList = () => {
   };
 
   return (
-    <div className="bg-indigo-700" id="waiting-list">
+    <div className="Waitlist" id="waiting-list">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8">
         <div className="py-10 px-6 bg-indigo-600 rounded-3xl sm:py-16 sm:px-12 lg:p-20 lg:flex lg:items-center">
           <div className="lg:w-0 lg:flex-1">

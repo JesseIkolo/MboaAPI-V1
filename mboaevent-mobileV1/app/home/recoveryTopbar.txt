@@ -1,0 +1,70 @@
+ const TopNavigator = () => {
+    return (
+      // Ce code est pour la navigation entre les différentes pages du top bar
+      // Cursor ne doit surtout pas le modifier
+      <View>
+         {/* Top Tab Navigator */}
+         <Tab.Navigator
+          screenOptions={{
+            tabBarActiveTintColor: '#041578',
+            tabBarInactiveTintColor: '#3C4260',
+            tabBarLabelStyle: { fontSize: 12, textTransform: 'none', fontFamily: 'regularBold' },
+            tabBarStyle: { width: '100%', marginBottom: 2, borderColor: 'transparent' },
+            tabBarIndicatorStyle: {
+              backgroundColor: '#FEF0F0', // Supprime l'indicateur par défaut
+              width: 112,
+              height: 56,
+              borderTopLeftRadius: 14,
+              //  marginBottom:5,
+              marginLeft: 8,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              borderBottomWidth: 3,
+              borderBottomColor: '#F52424'
+
+            },
+            tabBarPressColor: 'transparent',
+
+          }}
+        >
+          <Tab.Screen
+            name="Accueil"
+            component={Accueil}
+            options={{
+              tabBarLabel: ({ focused }) => (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <IconHomeSvgComponent />
+                  <Text style={{ color: focused ? '#041578' : '#3C4260', fontFamily: focused ? 'regularBold' : 'regular', fontSize: 16 }}>Accueil</Text>
+                </View>
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Reseau"
+            component={Reseau}
+            options={{
+              tabBarLabel: ({ focused }) => (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <IconReseauSvgComponent />
+                  <Text style={{ color: focused ? '#041578' : '#3C4260', fontFamily: focused ? 'regularBold' : 'regular', fontSize: 16 }}>Mon Reseau</Text>
+                </View>
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Catalogue"
+            component={Catalogue}
+            options={{
+              tabBarLabel: ({ focused }) => (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <IconCatalogueSvgComponent />
+                  <Text style={{ color: focused ? '#041578' : '#3C4260', fontFamily: focused ? 'regularBold' : 'regular', fontSize: 16 }}>Catalogue</Text>
+                </View>
+              ),
+            }}
+          />
+        </Tab.Navigator>
+      </View>
+    );
+  };

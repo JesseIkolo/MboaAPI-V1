@@ -42,9 +42,10 @@ body {
 
 .mboa-logo h1 {
   font-size: 28px;
-  font-weight: 800;
+  font-weight: 700;
   color: #0a1a5e;
   position: relative;
+  font-weight: 500;
 }
 
 /* Hamburger Menu Styles */
@@ -188,7 +189,7 @@ body {
 
 .mboa-title-animated {
   font-size: 38px;
-  font-weight: 800;
+  font-weight: 700;
   margin-bottom: 24px;
   line-height: 1.2;
   position: relative;

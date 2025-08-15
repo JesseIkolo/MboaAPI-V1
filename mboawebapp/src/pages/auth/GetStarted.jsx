@@ -65,6 +65,7 @@ export default function AuthInterface() {
 
       setIsLoading(true);
       setError('');
+      console.log('[GetStarted] handleLogin start', { loginMethod, hasIdentifier: !!loginIdentifier, hasPassword: !!loginPassword });
 
       const loginData = {
         identifier: loginIdentifier,
@@ -72,22 +73,35 @@ export default function AuthInterface() {
       };
 
       // Appeler la fonction login du contexte
-      const user = await login(loginData);
+      // Ajout d'un timeout pour éviter un loader bloqué en cas de requête pendante
+      console.log('[GetStarted] calling login()');
+      const user = await Promise.race([
+        login(loginData),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout de connexion')), 10000))
+      ]);
+      console.log('[GetStarted] login() resolved', { hasUser: !!user, role: user?.role });
 
-      showSuccess('Connexion réussie !');
-      
       // DEBUG LOGS
       console.log('USER POUR REDIRECTION:', user);
       console.log('ROLE:', user && user.role);
+
+      if (!user) {
+        showError('Identifiants invalides ou réponse inattendue du serveur');
+        return;
+      }
+
+      showSuccess('Connexion réussie !');
       // Redirection sécurisée
-      if (user && (user.role === 'admin' || user.role === 'superadmin')) {
+      if (user.role === 'admin' || user.role === 'superadmin') {
+        console.log('[GetStarted] redirect -> /admin');
         navigate('/admin', { replace: true });
-      } else if (user) {
+      } else {
+        console.log('[GetStarted] redirect -> /');
         navigate('/', { replace: true });
-      } // sinon, pas de redirection
+      }
 
     } catch (err) {
-      console.error('Erreur de connexion:', err, err.response?.data);
+      console.error('[GetStarted] Erreur de connexion:', err, err.response?.data);
       const errorData = err.response?.data;
       if (errorData) {
         if (errorData.requiresOTP) {
@@ -100,9 +114,10 @@ export default function AuthInterface() {
           showError(errorData.message || 'Identifiants invalides');
         }
       } else {
-      showError('Erreur de connexion au serveur');
+        showError(err.message || 'Erreur de connexion au serveur');
       }
     } finally {
+      console.log('[GetStarted] handleLogin finished');
       setIsLoading(false);
     }
   };

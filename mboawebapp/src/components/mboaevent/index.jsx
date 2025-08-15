@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./MboaEvent.css";
 import s1 from "../../assets/s1.svg";
 import s2 from "../../assets/s2.svg";
@@ -6,13 +6,14 @@ import lo from "../../assets/lo.png";
 import svg1 from "../../assets/svg1.svg";
 
 const MboaEvents = () => {
+  const [isAppVisible, setIsAppVisible] = useState(false);
   const [animatePhones, setAnimatePhones] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     // Animation delay to show the app interface
     setTimeout(() => {
-      // setIsAppVisible(true);
+      setIsAppVisible(true);
     }, 1000);
 
     // Set phone animations
@@ -85,9 +86,9 @@ const MboaEvents = () => {
         </button>
         </nav> 
 
-        <a href="#waiting-list" className="mboa-download-btn desktop-only">
-          Rejoindre la communauté <span>→</span>
-        </a>
+        <button className="mboa-download-btn desktop-only">
+          S'inscrire <span>→</span>
+        </button>
       </header>
 
       <section id="home" className="section">

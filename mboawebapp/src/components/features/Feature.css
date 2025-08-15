@@ -1,8 +1,7 @@
 /* MboaFeatures.css - Version Responsive Optimisée */
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap");
+
 
 .features-container {
-  font-family: "Montserrat", sans-serif;
   padding: 80px 0;
   width: 100%;
   overflow: hidden;
@@ -19,7 +18,7 @@
 /* Header Styles */
 .features-header {
   text-align: center;
-  margin-bottom: 120px;
+  margin-bottom: 0;
 }
 
 .features-tag {
@@ -56,7 +55,7 @@
 
 .features-text-content {
   flex: 1;
-  padding-right: 40px;
+  padding-right: 0;
 }
 
 .features-mockup {
@@ -78,7 +77,7 @@
   flex: 0 0 4px;
   background-color: #ff3a4c;
   border-radius: 4px;
-  height: 292px;
+  height: auto;
 }
 
 .highlight-content {
@@ -136,18 +135,23 @@
 .phone-container {
   position: relative;
   z-index: 2;
+  width :100%;
+  height : 100%
 }
 
 .phone-left {
-  transform: rotate(-9deg) translateX(139px);
+  transform: rotate(-2deg);
   z-index: 1;
 }
 
 .phone-right {
+ 
+  position: absolute;
   right: 0;
   transform: rotate(5deg);
   z-index: 2;
   animation: floatPhone2 6s ease-in-out infinite alternate;
+  top: 0;
 }
 
 /* Circle Decoration */
@@ -177,15 +181,15 @@
 
 /* Component 2 Style */
 .community-container {
-  font-family: "Montserrat", sans-serif;
   background: linear-gradient(135deg, #f0f2ff 0%, #e8eeff 50%, #e4edff 100%);
-  min-height: 100vh;
+  min-height: auto;
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
-  overflow: hidden;
-  padding: 20px;
+  overflow: visible;
+  padding: 0;
+  height: auto;
 }
 
 .content-wrapper {
@@ -250,11 +254,13 @@
 
 .text-content.animated {
   opacity: 1;
-  transform: translateX(0);
+    transform: translateX(0);
+    padding-left: 20px;
+    border-left: red 4px solid;
 }
 
 .text-content h1 {
-  color: #0011a7;
+  color: #0a1a5e;
   font-size: 39px;
   margin-bottom: 20px;
   line-height: 1.2;
@@ -354,7 +360,7 @@
 .promo-box {
   background: #001965;
   border-radius: 15px;
-  padding: 0 40px;
+  padding: 40px;
   display: flex;
   color: white;
   max-width: 884px;
@@ -624,10 +630,26 @@
     font-size: 15px;
     margin-bottom: 20px;
   }
+.followers-indautor{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
 
   .highlight-marker {
     min-height: 150px;
+    background-color: transparent;
   }
+
+  .highlight-marker {
+    flex: 0;
+    background-color: transparent;
+    border-radius: 0;
+    height: auto;
+}
 
   .community-container {
     padding: 15px;

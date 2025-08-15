@@ -925,4 +925,4 @@ const styles = StyleSheet.create({
 
 })
 
-module.exports = Reseau2
+export default Reseau2

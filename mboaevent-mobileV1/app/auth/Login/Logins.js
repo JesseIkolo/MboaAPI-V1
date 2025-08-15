@@ -3,11 +3,13 @@ import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, KeyboardAvoi
 import { useRouter } from 'expo-router';
 import FormInputBlock from '../../../assets/component/Globals Components/FormInputBlock';
 import Icon from '../../../assets/ressource/svg/globalIcons';
+import { useAuth } from '../../../contexts/AuthContext';
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 const OTP_LENGTH = 4;
 
 const Logins = () => {
     const router = useRouter();
+    const { login } = useAuth();
     const [block, setBlock] = useState(1); // 1: login, 2: forgot, 3: otp, 4: new password
     const [mode, setMode] = useState('phone'); // 'phone' | 'email' | 'username'
     const [phone, setPhone] = useState('');
@@ -53,7 +55,14 @@ const Logins = () => {
     const isPhoneValid = /^((\+|00)[0-9]{8,15}|0[0-9]{8,15})$/.test(phone);
     const isEmailValid = /.+@.+\..+/.test(email);
     const isUsernameValid = username.length >= 4;
-    const isPasswordValid = password.length >= 6;
+    // Validation avancée du mot de passe
+    const passwordCriteria = {
+        length: password.length >= 8,
+        uppercase: /[A-Z]/.test(password),
+        lowercase: /[a-z]/.test(password),
+        digit: /[0-9]/.test(password),
+    };
+    const isPasswordValid = Object.values(passwordCriteria).every(Boolean);
     const canLogin =
         (mode === 'phone' && isPhoneValid && isPasswordValid) ||
         (mode === 'email' && isEmailValid && isPasswordValid) ||
@@ -169,28 +178,43 @@ const Logins = () => {
                 value={password}
                 onChangeText={setPassword}
                 onBlur={() => setTouched(t => ({ ...t, password: true }))}
-                placeholder=""
+                placeholder="Votre mot de passe"
                 inputStyle={isPasswordValid ? styles.inputValid : (touched.password ? styles.inputError : {})}
-                error={touched.password && !isPasswordValid ? "6 caractères minimum" : ''}
+                error={touched.password && !isPasswordValid ? "Le mot de passe ne respecte pas tous les critères." : ''}
                 touched={touched.password}
                 isValid={isPasswordValid}
                 secureTextEntry
-                iconName="lock"
-                iconColor="#798588"
             />
+            {/* Indications des critères */}
+            {touched.password && (
+                <View style={{marginBottom: 8}}>
+                    <Text style={{color: passwordCriteria.length ? '#1AC97A' : '#F52424', fontSize: 13}}>
+                        • 8 caractères minimum
+                    </Text>
+                    <Text style={{color: passwordCriteria.uppercase ? '#1AC97A' : '#F52424', fontSize: 13}}>
+                        • 1 lettre majuscule
+                    </Text>
+                    <Text style={{color: passwordCriteria.lowercase ? '#1AC97A' : '#F52424', fontSize: 13}}>
+                        • 1 lettre minuscule
+                    </Text>
+                    <Text style={{color: passwordCriteria.digit ? '#1AC97A' : '#F52424', fontSize: 13}}>
+                        • 1 chiffre
+                    </Text>
+                </View>
+            )}
             <TouchableOpacity
                 style={[styles.submitBtn, !canLogin && styles.submitBtnDisabled]}
                 disabled={!canLogin || isLoading}
                 onPress={async () => {
                     setGlobalError('');
                     setIsLoading(true);
-                    setTimeout(() => {
+                    setTimeout(async () => {
                         setIsLoading(false);
                         if (mode === 'username' && username === 'wrong') {
                             setGlobalError('Nom d\'utilisateur ou mot de passe incorrect.');
                         } else {
-                            // Simule la connexion réussie
-                            router.replace('/home');
+                            await login();
+                            router.replace('/home/topnavigator');
                         }
                     }, 1200);
                 }}

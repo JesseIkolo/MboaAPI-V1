@@ -11,12 +11,16 @@ export const AuthProvider = ({ children }) => {
     // Vérifier si une session existe au chargement de l'app
     const checkLoggedIn = async () => {
       try {
+        console.log('[AuthContext] checkLoggedIn start');
         const { data } = await api.get('/users/me');
+        console.log('[AuthContext] checkLoggedIn ok', data);
         setUser(data);
       } catch (error) {
         // Pas de session valide, l'utilisateur n'est pas connecté
+        console.warn('[AuthContext] checkLoggedIn no session', error?.response?.status, error?.message);
         setUser(null);
       } finally {
+        console.log('[AuthContext] checkLoggedIn finished');
         setIsLoading(false);
       }
     };
@@ -25,13 +29,22 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (credentials) => {
-    const { data } = await api.post('/users/login', credentials);
-    if (data.token) {
-      localStorage.setItem('token', data.token);
+    try {
+      console.log('[AuthContext] login() request', credentials);
+      const { data } = await api.post('/users/login', credentials);
+      console.log('[AuthContext] login() response', data);
+      if (data?.token) {
+        localStorage.setItem('token', data.token);
+      }
+      setUser(data?.user || null);
+      // La redirection sera gérée par le composant qui appelle login
+      return data?.user || null;
+    } catch (error) {
+      const payload = error?.response?.data || { message: error?.message || 'Login error' };
+      console.error('[AuthContext] login() error', payload);
+      // Important: relancer l'erreur pour que le composant appelant affiche la notification et stoppe son loader
+      throw error;
     }
-    setUser(data.user);
-    // La redirection sera gérée par le composant qui appelle login
-    return data.user; 
   };
 
   const logout = async () => {

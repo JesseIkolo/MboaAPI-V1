@@ -25,6 +25,19 @@ const WaitlistPage = () => {
         }
     };
 
+    const handleDelete = async (userId) => {
+        try {
+            if (!window.confirm("Supprimer cette entrée de la liste d'attente ?")) return;
+            setLoading(true);
+            await api.delete(`/waitlist/${userId}`);
+            await fetchWaitlist();
+        } catch (err) {
+            setError(err.response?.data?.message || err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleAction = async (userId, action) => {
         try {
             await api.post(`/admin/waitlist/${userId}/${action}`);
@@ -157,22 +170,30 @@ const WaitlistPage = () => {
                                         {new Date(user.createdAt).toLocaleDateString('fr-FR')}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        {user.status === 'pending' && (
-                                            <div className="flex justify-end space-x-2">
-                                                <button
-                                                    onClick={() => handleAction(user._id, 'approve')}
-                                                    className="text-green-600 hover:text-green-900 bg-green-50 hover:bg-green-100 px-3 py-1 rounded-md"
-                                                >
-                                                    Approuver
-                                                </button>
-                                                <button
-                                                    onClick={() => handleAction(user._id, 'reject')}
-                                                    className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md"
-                                                >
-                                                    Rejeter
-                                                </button>
-                                            </div>
-                                        )}
+                                        <div className="flex justify-end space-x-2">
+                                            {user.status === 'pending' && (
+                                                <>
+                                                    <button
+                                                        onClick={() => handleAction(user._id, 'approve')}
+                                                        className="text-green-600 hover:text-green-900 bg-green-50 hover:bg-green-100 px-3 py-1 rounded-md"
+                                                    >
+                                                        Approuver
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleAction(user._id, 'reject')}
+                                                        className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md"
+                                                    >
+                                                        Rejeter
+                                                    </button>
+                                                </>
+                                            )}
+                                            <button
+                                                onClick={() => handleDelete(user._id)}
+                                                className="text-white bg-red-600 hover:bg-red-700 px-3 py-1 rounded-md"
+                                            >
+                                                Supprimer
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

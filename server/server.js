@@ -7,6 +7,9 @@ const swaggerConfig = require('./config/swagger');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const MongoStore = require('connect-mongo');
+const logger = require('./config/logger'); // Ajouter cette ligne
+const requestLogger = require('./middlewares/requestLogger'); // Ajouter cette ligne
+
 
 // Charger les variables d'environnement
 dotenv.config();
@@ -53,21 +56,34 @@ app.use(session({
 console.log("Les cors sont activées pour :",process.env.CORS_ORIGIN);
 
 
-const allowedOrigins = process.env.CORS_ORIGIN.split(',');
-app.use(cors({
-    origin: function(origin, callback){
+const allowedOrigins = process.env.CORS_ORIGIN.split(',').map((o) => o.trim());
+const isDev = (process.env.NODE_ENV !== 'production');
+const corsConfig = isDev ? {
+    origin: true,
+    credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    optionsSuccessStatus: 204
+} : {
+    origin: function (origin, callback) {
         // autorise les requêtes sans origin (comme Postman)
-        if(!origin) return callback(null, true);
-        if(allowedOrigins.indexOf(origin) !== -1){
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
             return callback(null, true);
-        } else {
-            return callback(new Error('Not allowed by CORS'));
         }
+        return callback(new Error('Not allowed by CORS'));
     },
-    credentials: true
-}));
+    credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    optionsSuccessStatus: 204
+};
+app.use(cors(corsConfig));
+// Gérer explicitement les preflight OPTIONS
+app.options('*', cors(corsConfig));
 
-
+// Middleware de logging des requêtes
+app.use(requestLogger);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -114,14 +130,38 @@ const startServer = async () => {
 
         // Démarrage du serveur
         app.listen(PORT, () => {
+            logger.info(`Server started successfully`, {
+                port: PORT,
+                environment: process.env.NODE_ENV || 'development',
+                timestamp: new Date().toISOString()
+            });
             console.log(`🚀 Serveur démarré sur le port ${PORT}`);
             console.log(`📚 Documentation API disponible sur http://localhost:${PORT}/api-docs`);
         });
     } catch (error) {
+        logger.error('Server startup error', { error: error.message, stack: error.stack });
         console.error('❌ Erreur lors du démarrage du serveur:', error);
         process.exit(1);
     }
 };
+
+// Gestion des erreurs globales
+process.on('uncaughtException', (error) => {
+    logger.error('Uncaught Exception', { error: error.message, stack: error.stack });
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    logger.error('Unhandled Rejection', {
+        reasonMessage: reason && reason.message ? reason.message : String(reason),
+        reasonStack: reason && reason.stack ? reason.stack : undefined,
+        promise
+    });
+    process.exit(1);
+});
+
+// Log du démarrage du serveur
+
 
 // Démarrer le serveur
 startServer();

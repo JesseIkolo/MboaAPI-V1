@@ -1,6 +1,8 @@
-import React from 'react';
-import { View, Text, TextInput, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { Sms, Call, Lock, User, Profile2User, Profile, Tag } from 'iconsax-react-nativejs';
+import Eye from '../../icons/eye';
+import EyeOff from '../../img/eye1';
 
 const iconMap = {
   sms: Sms,
@@ -30,25 +32,36 @@ const FormInputBlock = ({
     iconColor = '#041578',
     children,
 }) => {
+    const [showPassword, setShowPassword] = useState(false);
     const IconComponent = iconMap[iconName];
+    const isPassword = !!secureTextEntry;
     return (
         <View style={styles.inputBlock}>
             <Text style={styles.label}>{label}</Text>
             <View style={[styles.inputRow,styles.input]}>
                 
                 <TextInput
-                    style={inputStyle}
+                    style={[inputStyle, {alignSelf : 'stretch', width : '80%'}]}
                     value={value}
                     onChangeText={onChangeText}
                     onBlur={onBlur}
                     placeholder={placeholder}
                     placeholderTextColor={placeholderTextColor}
-                    secureTextEntry={secureTextEntry}
+                    secureTextEntry={isPassword && !showPassword}
                     keyboardType={keyboardType}
                     autoCapitalize={autoCapitalize}
                 />
                 {IconComponent && (
                     <IconComponent size={16} color={iconColor} style={{ marginRight: 8 }} />
+                )}
+                {isPassword && (
+                    <TouchableOpacity onPress={() => setShowPassword(v => !v)}>
+                        {showPassword ? (
+                            <EyeOff width={20} height={20} />
+                        ) : (
+                            <Eye width={20} height={20} />
+                        )}
+                    </TouchableOpacity>
                 )}
                 {children}
             </View>

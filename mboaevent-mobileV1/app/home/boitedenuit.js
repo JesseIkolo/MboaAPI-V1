@@ -558,4 +558,4 @@ const styles = StyleSheet.create({
 
 })
 
-module.exports = Boitedenuit
+export default Boitedenuit

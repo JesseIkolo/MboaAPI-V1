@@ -1,9 +1,9 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 
@@ -21,33 +21,43 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <AuthFlow />
-        <StatusBar style="auto" />
+        <InitialLayout />
+        {/* <StatusBar style="auto" /> */}
       </ThemeProvider>
     </AuthProvider>
   );
 }
 
-function AuthFlow() {
+function InitialLayout() {
   const { isAuthenticated } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
 
-  return isAuthenticated ? (
-    <Stack>
-      <Stack.Screen name="home/index" options={{ headerShown: false }} />
-      <Stack.Screen name="+not-found" />
-    </Stack>
-  ) : (
-    <Stack>
-      <Stack.Screen name="auth/Onboarding/SplashScreen" options={{ headerShown: false }} />
-      <Stack.Screen name="auth/Onboarding/Onboarding02" options={{ headerShown: false }} />
-      <Stack.Screen name="auth/Onboarding/Onboarding03" options={{ headerShown: false }} />
-      <Stack.Screen name="auth/Onboarding/Onboarding04" options={{ headerShown: false }} />
-      <Stack.Screen name="auth/Onboarding/Onboarding5" options={{ headerShown: false }} />
-      <Stack.Screen name="auth/Login/Logins" options={{ headerShown: false }} />
-      <Stack.Screen name="auth/Login/Register1" options={{ headerShown: false }} />
-      <Stack.Screen name="auth/Login/Register2" options={{ headerShown: false }} />
-      <Stack.Screen name="auth/Login/Register3" options={{ headerShown: false }} />
-      <Stack.Screen name="auth/Login/Register4" options={{ headerShown: false }} />
-    </Stack>
+  useEffect(() => {
+    if (isAuthenticated === null) {
+      // Auth state is still loading
+      return;
+    }
+
+    const inAuthGroup = segments[0] === 'auth';
+
+    if (isAuthenticated && inAuthGroup) {
+      // If the user is authenticated and somehow lands in the auth group,
+      // redirect them to the main app screen.
+      router.replace('/home/accueil');
+    } else if (!isAuthenticated && !inAuthGroup) {
+      // If the user is not authenticated and is not in the auth group,
+      // redirect them to the login screen.
+      router.replace('/auth/Onboarding/SplashScreen');
+    }
+  }, [isAuthenticated]);
+
+  return (
+      <Stack>
+        {/* Let Expo Router handle the routes based on file structure */}
+        <Stack.Screen name="auth" options={{ headerShown: false }} />
+        <Stack.Screen name="home" options={{ headerShown: false }} />
+        <Stack.Screen name="+not-found" />
+      </Stack>
   );
 }
