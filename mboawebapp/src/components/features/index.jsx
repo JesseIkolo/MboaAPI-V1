@@ -101,12 +101,12 @@ const MboaFeatures = () => {
             <div className={`phones-container ${isAnimated ? "animated" : ""}`}>
               {/* Left phone image - will be replaced with actual image */}
               <div className="phone-placeholder left-phone">
-                <img src={communaute1} />
+                <img src={communaute1} alt="Community preview 1" />
               </div>
 
               {/* Right phone image - will be replaced with actual image */}
               <div className="phone-placeholder right-phone">
-                <img src={communaute2} />
+                <img src={communaute2} alt="Community preview 2" />
               </div>
             </div>
 
@@ -205,12 +205,12 @@ const MboaFeatures = () => {
             <div className={`phones-container ${isAnimated ? "animated" : ""}`}>
               {/* Left phone image - will be replaced with actual image */}
               <div className="phone-placeholder left-phone">
-                <img src={Abonnement1} />
+                <img src={Abonnement1} alt="Subscription preview 1" />
               </div>
 
               {/* Right phone image - will be replaced with actual image */}
               <div className="phone-placeholder right-phone">
-                <img src={Abonnement2} />
+                <img src={Abonnement2} alt="Subscription preview 2" />
               </div>
             </div>
 

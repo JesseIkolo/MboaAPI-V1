@@ -11,7 +11,7 @@ const Footer = () => {
 
       <div className="footer-middle">
         <div className="footer-column">
-          <img src={lo1}/>
+          <img src={lo1} alt="Logo"/>
           <p>support@mboahost.com</p>
           <p>+237 694 438 421</p>
         </div>

@@ -29,7 +29,7 @@ const MboaEventsAbout = () => {
         >
           <div className="events-content">
             <div className="text">
-              <img src={ico} />
+              <img src={ico} alt="Icône"/>
               <h3>Tout l’univers des <br/>événements en un clic</h3>
               <p>
               Découvre, organise et vis tous les événements qui comptent autour de toi. Qu’ils soient festifs, éducatifs, artistique, utiles pour la santé, on regroupe tout au même endroit.
@@ -82,7 +82,7 @@ const MboaEventsAbout = () => {
         >
           <div className="community-content">
             <div className="text">
-              <img src={user} />
+              <img src={user} alt="Utilisateur"/>
               <h3>Communauté</h3>
               <p>Retrouve des amis, construis, partage et profite de tes passions et événements préférés grâce à notre système de communauté intégré. </p>
             </div>
